@@ -28,7 +28,7 @@ jobs:
       - name: Checkout pyredox
         uses: actions/checkout@v3
         with:
-          repository: cedar-team/pyredox
+          repository: mmabey/pyredox
           ref: main
           path: pyredox
 
