@@ -86,7 +86,11 @@ def open_pr():
 
 
 @click.command()
-def main():
+@click.option("--version", is_flag=True, default=False)
+def main(version: bool):
+    if version:
+        return update_version()
+
     try:
         if num_differences := get_num_differences():
             update_version()
