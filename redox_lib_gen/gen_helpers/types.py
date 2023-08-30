@@ -408,7 +408,9 @@ class TemplateInfo:
     # standard dict eliminates the need to check if we've already collected an import
     # from a particular module already.
     imports: ImportMapping = field(
-        default_factory=lambda: ImportMapping({"pydantic": {"Field"}})
+        default_factory=lambda: ImportMapping(
+            {"pydantic": {"Field"}, "__future__": {"annotations"}}
+        )
     )
     relative_imports: ImportMapping = field(default_factory=ImportMapping)
     klass_definitions: List[KlassDefinition] = field(default_factory=list)

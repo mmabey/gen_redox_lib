@@ -92,10 +92,10 @@ def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
             copy(f, dst_path)
 
     process_files(
-        extracted_folder,
-        dst,
-        [d.name for d in extracted_folder.iterdir() if d.is_dir()],
-        TEMPLATE_DIR,
+        extracted_folder=extracted_folder,
+        dst=dst,
+        directories=[d.name for d in extracted_folder.iterdir() if d.is_dir()],
+        template_dir=TEMPLATE_DIR,
     )
     format_python_files(dst)
 

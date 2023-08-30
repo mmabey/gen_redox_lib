@@ -11,9 +11,8 @@ from .types import TemplateInfo
 
 
 def process_files(
-    extracted_folder: Path, dst: Path, directories: List[str], template_dir: Path
+    *, extracted_folder: Path, dst: Path, directories: List[str], template_dir: Path
 ):
-
     # Create the Jinja environment and template
     jinja_env = Environment(
         loader=FileSystemLoader(template_dir),
@@ -89,7 +88,6 @@ def write_py_files(
         with open(
             lib_dest_dir / template_info.dir_name / template_info.file_name, "w"
         ) as model_file:
-
             model_file.write(template.render(**template_info.as_dict()))
 
         progressbar_updater(template_info.file_name)

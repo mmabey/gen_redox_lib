@@ -75,8 +75,8 @@ def get_property_type(
 
     elif type_str == "number":
         return PropertyTypeInfo(
-            _raw_type=DeconstructedType(NATIVE, {"Number"}),
-            relative_imports=ImportMapping({"field_types": {"Number"}}),
+            _raw_type=DeconstructedType(NATIVE, {"Decimal"}),
+            imports=ImportMapping({"decimal": {"Decimal"}}),
         )
 
     type_mapping = {
