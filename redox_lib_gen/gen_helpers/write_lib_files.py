@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
+from subprocess import run
 from typing import Callable, Iterator, List, Optional
 
 import click
@@ -11,11 +12,15 @@ from .types import TemplateInfo
 
 
 def process_files(
-    *, extracted_folder: Path, dst: Path, directories: List[str], template_dir: Path
+    *,
+    extracted_folder: Path,
+    dst: Path,
+    directories: List[str],
+    jinja_template_dir: Path,
 ):
     # Create the Jinja environment and template
     jinja_env = Environment(
-        loader=FileSystemLoader(template_dir),
+        loader=FileSystemLoader(jinja_template_dir),
         autoescape=select_autoescape(),
         trim_blocks=True,
         lstrip_blocks=True,
@@ -108,3 +113,11 @@ def write_py_files(
                         f"from .{template_info.file_name.rsplit('.', 1)[0]} "
                         f"import {event_class.full_name}\n"
                     )
+
+
+def format_python_files(target_dir: Path):
+    """Run black and isort on the target directory."""
+    target_dir = target_dir.resolve()
+    click.echo("Formatting generated files... ", nl=False)
+    run(["ufmt", "-q", "format", target_dir], check=True)
+    click.echo("Done")

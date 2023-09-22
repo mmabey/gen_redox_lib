@@ -130,8 +130,12 @@ class KlassPropertySignatureInfo:
 
     type_info: PropertyTypeInfo
     required: bool
-    name: str
+    alias: str
     appears_in: set  # This is largely for debugging purposes, but it is VERY useful
+
+    @property
+    def field_name(self):
+        return f"{self.alias}_"
 
     @property
     def type(self):
@@ -153,7 +157,7 @@ class KlassPropertySignatureInfo:
         return KlassPropertySignatureInfo(
             type_info=copy(self.type_info),
             required=self.required,
-            name=self.name,
+            alias=self.alias,
             appears_in=copy(self.appears_in),
         )
 
@@ -180,15 +184,15 @@ class KlassPropertySignatureInfo:
         elif not isinstance(other, self.__class__):
             return NotImplemented
 
-        if self.name != other.name:
+        if self.alias != other.alias:
             raise ValueError(
                 "Name must be the same to combine KlassPropertySignatureInfo objects: "
-                f"{self.name} vs {other.name}"
+                f"{self.alias} vs {other.alias}"
             )
 
         return KlassPropertySignatureInfo(
             type_info=self.type_info | other.type_info,
-            name=self.name,
+            alias=self.alias,
             required=self.required and other.required,
             appears_in=self.appears_in.union(other.appears_in),
         )
@@ -196,7 +200,7 @@ class KlassPropertySignatureInfo:
     def __hash__(self):
         return hash(
             (
-                self.name,
+                self.alias,
                 self.type,
                 self.type_class,
                 self.type_simplified,
@@ -214,7 +218,7 @@ class KlassPropertySignatureInfo:
         """
         return (
             (
-                self.name == other.name
+                self.alias == other.alias
                 and self.type_info == other.type_info
                 and self.required == other.required
             )
@@ -235,9 +239,9 @@ class KlassPropertySignatureInfo:
         if not isinstance(other, self.__class__):
             return NotImplemented
 
-        if self.name < other.name:
+        if self.alias < other.alias:
             return True
-        if self.name > other.name:
+        if self.alias > other.alias:
             return False
 
         # Only case left is where the names are equal
@@ -281,11 +285,11 @@ class KlassDefinition:
 
     @property
     def prop_map(self):
-        """Map of property names to property objects."""
+        """Map of property names/aliases to property objects."""
         if self._prop_map is None:
             self._prop_map = defaultdict(
                 EMPTY_KLASS_PROPERTY,
-                {p.name: p for p in self.properties if p is not EMPTY_KLASS_PROPERTY},
+                {p.alias: p for p in self.properties if p is not EMPTY_KLASS_PROPERTY},
             )
         return self._prop_map
 

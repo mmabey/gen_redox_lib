@@ -17,9 +17,10 @@ from .{{ '.' * dir_dist_from_abstract }}{{ lib }} import {{ packages|sort|join('
 
 
 class {{ klass.full_name }}({{ "EventTypeAbstractModel" if klass.is_event_type else "RedoxAbstractModel" }}):
-
     {% for prop in klass.properties|sort %}
-    {{+ prop.name }}: {{ prop.type_simplified if use_simple_types else prop.type }} = Field({% if prop.required %}...{% else %}None{% endif %})
+    {{+ prop.field_name }}: {{ prop.type_simplified if use_simple_types else prop.type }} = Field(
+        {%- if prop.required %}...{% else %}None{% endif %}, alias="{{ prop.alias }}"
+    )
     {% endfor %}
 {% endfor %}
 {% for forward_ref_klass in forward_refs|sort %}
@@ -27,5 +28,5 @@ class {{ klass.full_name }}({{ "EventTypeAbstractModel" if klass.is_event_type e
 
 
     {% endif %}
-{{ forward_ref_klass }}.update_forward_refs()
+{{ forward_ref_klass }}.model_rebuild()
 {% endfor %}

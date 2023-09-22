@@ -21,8 +21,9 @@ class _{{ model_name }}(GenericEventTypeAbstractModel):
 
 
 class {{ klass.full_name }}(_{{ model_name }}):
-
     {% for prop in klass.properties|sort %}
-    {{+ prop.name }}: {{ prop.type_simplified if use_simple_types else prop.type }} = Field({% if prop.required %}...{% else %}None{% endif %})
+    {{+ prop.field_name }}: {{ prop.type_simplified if use_simple_types else prop.type }} = Field(
+        {%- if prop.required %}...{% else %}None{% endif %}, alias="{{ prop.alias }}"
+    )
     {% endfor %}
 {% endfor %}

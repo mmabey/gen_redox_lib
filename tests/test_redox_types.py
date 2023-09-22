@@ -37,7 +37,7 @@ def test_property_merging_sorting():
             )
         ),
         required=True,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
     prop_2 = KlassPropertySignatureInfo(
@@ -51,7 +51,7 @@ def test_property_merging_sorting():
             )
         ),
         required=False,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
 
@@ -61,17 +61,17 @@ def test_property_merging_sorting():
     assert combined.type_class == prop_2.type_class
     assert combined.type_simplified == prop_2.type_simplified
     assert not combined.required
-    assert combined.name == prop_1.name
+    assert combined.alias == prop_1.alias
 
     # Sorting checks
     prop_a = copy(prop_1)
-    prop_a.name = "abracadabra"
+    prop_a.alias = "abracadabra"
 
     prop_b = copy(prop_1)
-    prop_b.name = "baboon"
+    prop_b.alias = "baboon"
 
     prop_c = copy(prop_1)
-    prop_c.name = "cowboy"
+    prop_c.alias = "cowboy"
 
     mixed_props = [prop_c, prop_a, prop_b]
     sorted_props = sorted(mixed_props)
@@ -87,7 +87,7 @@ def test_klass_merge_sorting():
             _raw_type=DeconstructedType(KlassPropertyType.NATIVE, {"str"})
         ),
         required=True,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
     prop_1b = KlassPropertySignatureInfo(
@@ -101,12 +101,12 @@ def test_klass_merge_sorting():
             )
         ),
         required=False,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
 
     prop_2a = copy(prop_1a)
-    prop_2a.name = "SecondProperty"
+    prop_2a.alias = "SecondProperty"
 
     prop_2b = copy(prop_2a)
     prop_2b.type_info = PropertyTypeInfo(

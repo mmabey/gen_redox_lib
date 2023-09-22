@@ -64,7 +64,6 @@ def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
             "so just try again in a minute or so."
         )
         exit(2)
-        return
 
     # Clear the destination dir (minus a few things)
     rmrf(
@@ -74,7 +73,6 @@ def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
             Path("__init__.py"),
             Path("abstract_base.py"),
             Path("factory.py"),
-            Path("field_types.py"),
             Path("tests"),
         },
     )
@@ -95,7 +93,7 @@ def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
         extracted_folder=extracted_folder,
         dst=dst,
         directories=[d.name for d in extracted_folder.iterdir() if d.is_dir()],
-        template_dir=TEMPLATE_DIR,
+        jinja_template_dir=TEMPLATE_DIR,
     )
     format_python_files(dst)
 

@@ -56,7 +56,7 @@ def create_template_info(klass_def: KlassDefinition, file_name: str) -> Template
     """Collect and return info for the Jinja2 template.
 
     Recursively iterates through the definitions of the given class and its
-    sub-classes, transforming the KlassDefinition objects into a single
+    subclasses, transforming the KlassDefinition objects into a single
     TemplateInfo instance. This function calls itself on any properties with
     a JSON schema type of either "object" or "array". In the case of the
     latter, this function is only concerned with arrays of types other than
@@ -100,7 +100,6 @@ def _get_subklasses(
     prop_name: str
     prop_info: dict
     for prop_name, prop_info in properties.items():
-
         # Object JSON type - Will need its own KlassDefinition
         if prop_info["type"] == "object":
             subklass = KlassDefinition(
@@ -131,7 +130,7 @@ def _get_subklasses(
             KlassPropertySignatureInfo(
                 type_info=prop_type_info,
                 required=prop_name in klass_def.schema_def.get("required", []),
-                name=prop_name,
+                alias=prop_name,
                 appears_in={f"{klass_def.dir_name}.{klass_def.full_name}"},
             )
         )

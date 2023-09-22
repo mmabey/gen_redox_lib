@@ -2,7 +2,6 @@
 from functools import reduce
 from operator import add
 from pathlib import Path
-from subprocess import run
 from typing import Collection, List, Optional
 
 from .sub_types import DeconstructedType, KlassPropertyType
@@ -73,17 +72,12 @@ def get_property_type(
     elif type_str == "array":
         return _get_array_prop_type(klass_def)
 
-    elif type_str == "number":
-        return PropertyTypeInfo(
-            _raw_type=DeconstructedType(NATIVE, {"Decimal"}),
-            imports=ImportMapping({"decimal": {"Decimal"}}),
-        )
-
     type_mapping = {
         "string": "str",
         "boolean": "bool",
         "null": "None",
         "integer": "int",
+        "number": "float",
     }
     try:
         prop_type = type_mapping[type_str]
@@ -154,9 +148,3 @@ def _get_array_prop_type(
         ),
         imports=ImportMapping({"typing": {"List"}}),
     )
-
-
-def format_python_files(target_dir: Path):
-    """Run black and isort on the target directory."""
-    target_dir = target_dir.resolve()
-    run(["ufmt", "format", target_dir], check=True)

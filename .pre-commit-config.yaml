@@ -37,6 +37,11 @@ repos:
   hooks:
   - id: ufmt
     exclude: "tests/snapshots/.*"
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.0.286
+  hooks:
+  - id: ruff
+    args: ["--fix"]
 - repo: local
   hooks:
   - id: tox
