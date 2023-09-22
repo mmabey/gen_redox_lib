@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from subprocess import run
+from subprocess import PIPE, Popen, STDOUT
+from time import sleep
 from typing import Callable, Iterator, List, Optional
 
 import click
@@ -118,6 +119,19 @@ def write_py_files(
 def format_python_files(target_dir: Path):
     """Run black and isort on the target directory."""
     target_dir = target_dir.resolve()
-    click.echo("Formatting generated files... ", nl=False)
-    run(["ufmt", "-q", "format", target_dir], check=True)
-    click.echo("Done")
+    click.echo("Formatting generated files ", nl=False)
+    p = Popen(
+        ["ufmt", "format", target_dir],
+        universal_newlines=True,
+        stdout=PIPE,
+        stderr=STDOUT,
+    )
+    while p.poll() is None:
+        click.echo(".", nl=False)
+        sleep(1)
+
+    stdout, _ = p.communicate()
+    if p.returncode != 0:
+        click.echo(f"\nEncountered an error - code {p.returncode}\n{stdout}")
+    else:
+        click.echo(f"\n{stdout.splitlines()[-1]}")
