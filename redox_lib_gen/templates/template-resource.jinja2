@@ -16,7 +16,7 @@ from .{{ '.' * dir_dist_from_abstract }}{{ lib }} import {{ packages|sort|join('
 {% for klass in klass_definitions|sort %}
 
 
-class {{ klass.full_name }}({{ "EventTypeAbstractModel" if klass.is_event_type else "RedoxAbstractModel" }}):
+class {{ klass.full_name }}({{ klass.base_klass }}):
     {% for prop in klass.properties|sort %}
     {{+ prop.field_name }}: {{ prop.type_simplified if use_simple_types else prop.type }} = Field(
         {%- if prop.required %}...{% else %}None{% endif %}, alias="{{ prop.alias }}"

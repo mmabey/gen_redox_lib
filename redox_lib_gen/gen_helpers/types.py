@@ -279,9 +279,17 @@ class KlassDefinition:
     @property
     def full_name(self):
         """Combination of the class's parent name and this class's name."""
-        if self.parent_klass_name == "RedoxAbstractModel":
+        if self.parent_klass_name in {"RedoxAbstractModel", "MetaBase"}:
             return self.klass_name
         return f"{self.parent_klass_name}{self.klass_name}"
+
+    @property
+    def base_klass(self):
+        if self.is_event_type:
+            return "EventTypeAbstractModel"
+        if self.parent_klass_name == "MetaBase":
+            return "MetaBase"
+        return "RedoxAbstractModel"
 
     @property
     def prop_map(self):

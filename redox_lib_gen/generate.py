@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from shutil import copy
 
 import click
 from gen_helpers import download_and_extract, format_python_files, process_files, rmrf
@@ -78,16 +77,6 @@ def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
     )
     dst.mkdir(exist_ok=True)
     (dst / "__init__.py").touch()
-
-    # Copy all files from the templates folder except Jinja2 files
-    for f in TEMPLATE_DIR.glob("**/*.[!jinja2]*"):
-        dst_path = dst / f.relative_to(TEMPLATE_DIR)
-        try:
-            copy(f, dst_path)
-        except FileNotFoundError:
-            # Parent dir may not exist. Create it and then try the copy again.
-            dst_path.parent.mkdir()
-            copy(f, dst_path)
 
     process_files(
         extracted_folder=extracted_folder,
