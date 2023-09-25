@@ -34,6 +34,12 @@ addopts = "--ignore tests/snapshots/"
 [tool.usort]
 excludes = ["tests/snapshots/"]
 
+[tool.usort.known]
+first_party = ["gen_redox_lib"]
+
+[tool.ruff]
+extend-exclude = ["tests/snapshots"]
+
 [tool.tox]
 legacy_tox_ini = """
     [tox]

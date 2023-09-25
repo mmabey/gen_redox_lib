@@ -2,14 +2,27 @@
 from pathlib import Path
 from subprocess import CalledProcessError, run
 
-import gen_redox_lib
-
 import pytest
+from tomlkit import parse
+
+import gen_redox_lib
 from gen_redox_lib.utils import temp_chdir
 
 
 def test_version():
-    assert gen_redox_lib.__version__ == "0.1.0-alpha.1"
+    assert gen_redox_lib.__version__ == "1.1.0"
+
+
+def test_pyproject_version():
+    this_dir = Path(__file__).parent
+    with open(this_dir / ".." / "pyproject.toml") as pyproject_file:
+        pyproject = parse(pyproject_file.read())
+
+    fail_msg = (
+        "The version in the pyproject.toml file differs from the version in the code."
+    )
+
+    assert pyproject["tool"]["poetry"]["version"] == gen_redox_lib.__version__, fail_msg
 
 
 @pytest.fixture
