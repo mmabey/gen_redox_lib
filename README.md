@@ -9,7 +9,7 @@ the wrong place. Search for `pyredox` instead.
 
 ## About
 
-`redox_lib_gen` creates Pydantic models using the Redox data schema and a [Jinja2
+`gen_redox_lib` creates Pydantic models using the Redox data schema and a [Jinja2
 template](https://jinja.palletsprojects.com/en/3.0.x/templates/). The approach was
 inspired by the work of the
 [`fhir.resources`](https://pypi.org/project/fhir.resources/) library and the
@@ -33,7 +33,7 @@ This utility provides two main benefits:
 
 ## Running the Utility
 
-Make sure your working directory is `redox_lib_gen` and activate the virtual
+Make sure your working directory is `gen_redox_lib` and activate the virtual
 environment:
 
 ```shell
@@ -43,7 +43,7 @@ poetry shell
 Then run the `generate.py` script:
 
 ```shell
-cd redox_lib_gen
+cd gen_redox_lib
 python3 generate.py
 ```
 

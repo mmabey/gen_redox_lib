@@ -27,7 +27,6 @@ def download_and_extract(
 
 @retry(HTTPError, tries=10, delay=2, backoff=1.5)
 def _download(spec_url: str, spec_zip: Path, force_download: bool):
-
     # TODO: May need to update this logic to download a newer version of the spec
     if force_download or not spec_zip.exists():
         click.echo(f"Downloading Redox spec from {spec_url}...", nl=False)

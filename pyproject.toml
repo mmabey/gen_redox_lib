@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "redox_lib_gen"
-version = "1.0.0"
+name = "gen_redox_lib"
+version = "1.1.0"
 description = ""
 authors = ["Mike Mabey <pypi@mikemabey.com>"]
 license = "MIT"
@@ -52,5 +52,5 @@ legacy_tox_ini = """
         ufmt>=2.0
     allowlist_externals = coverage
     commands =
-        coverage run --source redox_lib_gen -m pytest -vv
+        coverage run --source gen_redox_lib -m pytest -vv
 """

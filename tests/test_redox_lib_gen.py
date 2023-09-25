@@ -2,14 +2,14 @@
 from pathlib import Path
 from subprocess import CalledProcessError, run
 
-import pytest
+import gen_redox_lib
 
-import redox_lib_gen
-from redox_lib_gen.utils import temp_chdir
+import pytest
+from gen_redox_lib.utils import temp_chdir
 
 
 def test_version():
-    assert redox_lib_gen.__version__ == "0.1.0-alpha.1"
+    assert gen_redox_lib.__version__ == "0.1.0-alpha.1"
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def fresh_lib_generation(tmp_path) -> Path:
     tmp_dir.mkdir()
 
     # Change the working directory to be where generate.py file is
-    with temp_chdir(Path(redox_lib_gen.__file__).parent):
+    with temp_chdir(Path(gen_redox_lib.__file__).parent):
         cmd = ["python3", "generate.py", "--dst", str(tmp_dir), "--force-download"]
         print(f"running command: `{' '.join(cmd)}`\n")
         try:
