@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List
 
 from pydantic import Field
 
-from pyredox import vaccination
+from redox import vaccination
 from ..abstract_base import GenericEventTypeAbstractModel
 from . import types as generic
 

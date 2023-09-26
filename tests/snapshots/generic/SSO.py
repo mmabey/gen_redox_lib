@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import Union
 
 from pydantic import Field
 
-from pyredox import sso
+from redox import sso
 from ..abstract_base import GenericEventTypeAbstractModel
 from . import types as generic
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from subprocess import PIPE, Popen, STDOUT
+from subprocess import PIPE, Popen, run, STDOUT
 from time import sleep
 from typing import Callable, Iterator, List, Optional
 
@@ -66,7 +66,7 @@ def process_files(
         )
 
     click.echo("Done")
-    click.echo(f"pyredox files generated at {dst}")
+    click.echo(f"redox library files generated at {dst}")
 
 
 def write_py_files(
@@ -135,3 +135,6 @@ def format_python_files(target_dir: Path):
         click.echo(f"\nEncountered an error - code {p.returncode}\n{stdout}")
     else:
         click.echo(f"\n{stdout.splitlines()[-1]}")
+
+    click.echo("Linting/fixing with ruff")
+    run(["ruff", "check", "--fix", "--ignore=E501", target_dir], check=True)
