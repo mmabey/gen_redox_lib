@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from copy import copy
 
-from redox_lib_gen.gen_helpers.sub_types import DeconstructedType
-from redox_lib_gen.gen_helpers.types import (
+from gen_redox_lib.gen_helpers.sub_types import DeconstructedType
+from gen_redox_lib.gen_helpers.types import (
     ImportMapping,
     KlassDefinition,
     KlassPropertySignatureInfo,
@@ -13,7 +13,7 @@ from redox_lib_gen.gen_helpers.types import (
 
 def test_import_mapping_adding():
     # Creating an import mapping is the same whether you pass values to the constructor
-    # or do it afterwards.
+    # or do it afterward.
     imports_a = ImportMapping()
     imports_a[""].add("cool_module")
 
@@ -37,7 +37,7 @@ def test_property_merging_sorting():
             )
         ),
         required=True,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
     prop_2 = KlassPropertySignatureInfo(
@@ -51,7 +51,7 @@ def test_property_merging_sorting():
             )
         ),
         required=False,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
 
@@ -61,17 +61,17 @@ def test_property_merging_sorting():
     assert combined.type_class == prop_2.type_class
     assert combined.type_simplified == prop_2.type_simplified
     assert not combined.required
-    assert combined.name == prop_1.name
+    assert combined.alias == prop_1.alias
 
     # Sorting checks
     prop_a = copy(prop_1)
-    prop_a.name = "abracadabra"
+    prop_a.alias = "abracadabra"
 
     prop_b = copy(prop_1)
-    prop_b.name = "baboon"
+    prop_b.alias = "baboon"
 
     prop_c = copy(prop_1)
-    prop_c.name = "cowboy"
+    prop_c.alias = "cowboy"
 
     mixed_props = [prop_c, prop_a, prop_b]
     sorted_props = sorted(mixed_props)
@@ -87,7 +87,7 @@ def test_klass_merge_sorting():
             _raw_type=DeconstructedType(KlassPropertyType.NATIVE, {"str"})
         ),
         required=True,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
     prop_1b = KlassPropertySignatureInfo(
@@ -101,12 +101,12 @@ def test_klass_merge_sorting():
             )
         ),
         required=False,
-        name="FirstProperty",
+        alias="FirstProperty",
         appears_in=set(),
     )
 
     prop_2a = copy(prop_1a)
-    prop_2a.name = "SecondProperty"
+    prop_2a.alias = "SecondProperty"
 
     prop_2b = copy(prop_2a)
     prop_2b.type_info = PropertyTypeInfo(
@@ -182,7 +182,7 @@ def test_deconstructed_merge():
     assert str(str1 | str_none1) == "Union[str, None]"
 
     # Native | Schema
-    assert str(str1 | blah1) == 'Union["Blah", str]'
+    assert str(str1 | blah1) == "Union[Blah, str]"
 
     #
     # LIST
@@ -198,7 +198,7 @@ def test_deconstructed_merge():
     assert str(list1 | str_none1) == "Union[List[str], str, None]"
 
     # List | Schema
-    assert str(list1 | blah1) == 'Union["Blah", List[str]]'
+    assert str(list1 | blah1) == "Union[Blah, List[str]]"
 
     #
     # UNION
@@ -215,21 +215,21 @@ def test_deconstructed_merge():
     assert str(str_bool1 | str_none1) == "Union[bool, str, None]"
 
     # Union | Schema
-    assert str(str_bool1 | blah1) == 'Union["Blah", bool, str]'
+    assert str(str_bool1 | blah1) == "Union[Blah, bool, str]"
 
     #
     # SCHEMA
     #
 
     # Schema | Native
-    assert str(blah1 | str1) == 'Union["Blah", str]'
+    assert str(blah1 | str1) == "Union[Blah, str]"
 
     # Schema | List
-    assert str(blah1 | list1) == 'Union["Blah", List[str]]'
+    assert str(blah1 | list1) == "Union[Blah, List[str]]"
 
     # Schema | Union
-    assert str(blah1 | str_bool1) == 'Union["Blah", bool, str]'
+    assert str(blah1 | str_bool1) == "Union[Blah, bool, str]"
 
     # Schema | Schema
     assert str(blah1 | blah1) == str(blah1)
-    assert str(blah1 | halb1) == 'Union["Blah", "Halb"]'
+    assert str(blah1 | halb1) == "Union[Blah, Halb]"

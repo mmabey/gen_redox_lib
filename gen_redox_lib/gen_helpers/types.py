@@ -130,8 +130,12 @@ class KlassPropertySignatureInfo:
 
     type_info: PropertyTypeInfo
     required: bool
-    name: str
+    alias: str
     appears_in: set  # This is largely for debugging purposes, but it is VERY useful
+
+    @property
+    def field_name(self):
+        return f"{self.alias}_"
 
     @property
     def type(self):
@@ -153,7 +157,7 @@ class KlassPropertySignatureInfo:
         return KlassPropertySignatureInfo(
             type_info=copy(self.type_info),
             required=self.required,
-            name=self.name,
+            alias=self.alias,
             appears_in=copy(self.appears_in),
         )
 
@@ -180,15 +184,15 @@ class KlassPropertySignatureInfo:
         elif not isinstance(other, self.__class__):
             return NotImplemented
 
-        if self.name != other.name:
+        if self.alias != other.alias:
             raise ValueError(
                 "Name must be the same to combine KlassPropertySignatureInfo objects: "
-                f"{self.name} vs {other.name}"
+                f"{self.alias} vs {other.alias}"
             )
 
         return KlassPropertySignatureInfo(
             type_info=self.type_info | other.type_info,
-            name=self.name,
+            alias=self.alias,
             required=self.required and other.required,
             appears_in=self.appears_in.union(other.appears_in),
         )
@@ -196,7 +200,7 @@ class KlassPropertySignatureInfo:
     def __hash__(self):
         return hash(
             (
-                self.name,
+                self.alias,
                 self.type,
                 self.type_class,
                 self.type_simplified,
@@ -214,7 +218,7 @@ class KlassPropertySignatureInfo:
         """
         return (
             (
-                self.name == other.name
+                self.alias == other.alias
                 and self.type_info == other.type_info
                 and self.required == other.required
             )
@@ -235,9 +239,9 @@ class KlassPropertySignatureInfo:
         if not isinstance(other, self.__class__):
             return NotImplemented
 
-        if self.name < other.name:
+        if self.alias < other.alias:
             return True
-        if self.name > other.name:
+        if self.alias > other.alias:
             return False
 
         # Only case left is where the names are equal
@@ -275,17 +279,25 @@ class KlassDefinition:
     @property
     def full_name(self):
         """Combination of the class's parent name and this class's name."""
-        if self.parent_klass_name == "RedoxAbstractModel":
+        if self.parent_klass_name in {"RedoxAbstractModel", "MetaBase"}:
             return self.klass_name
         return f"{self.parent_klass_name}{self.klass_name}"
 
     @property
+    def base_klass(self):
+        if self.is_event_type:
+            return "EventTypeAbstractModel"
+        if self.parent_klass_name == "MetaBase":
+            return "MetaBase"
+        return "RedoxAbstractModel"
+
+    @property
     def prop_map(self):
-        """Map of property names to property objects."""
+        """Map of property names/aliases to property objects."""
         if self._prop_map is None:
             self._prop_map = defaultdict(
                 EMPTY_KLASS_PROPERTY,
-                {p.name: p for p in self.properties if p is not EMPTY_KLASS_PROPERTY},
+                {p.alias: p for p in self.properties if p is not EMPTY_KLASS_PROPERTY},
             )
         return self._prop_map
 
@@ -408,7 +420,9 @@ class TemplateInfo:
     # standard dict eliminates the need to check if we've already collected an import
     # from a particular module already.
     imports: ImportMapping = field(
-        default_factory=lambda: ImportMapping({"pydantic": {"Field"}})
+        default_factory=lambda: ImportMapping(
+            {"pydantic": {"Field"}, "__future__": {"annotations"}}
+        )
     )
     relative_imports: ImportMapping = field(default_factory=ImportMapping)
     klass_definitions: List[KlassDefinition] = field(default_factory=list)

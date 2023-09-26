@@ -12,6 +12,12 @@ repos:
   - id: fix-encoding-pragma
   - id: mixed-line-ending
   - id: trailing-whitespace
+- repo: https://github.com/python-poetry/poetry
+  rev: '1.6.1'  # Does not auto-update; must be manually changed
+  hooks:
+    - id: poetry-check
+    - id: poetry-lock
+      args: ["--no-update"]
 - repo: https://github.com/pre-commit/pygrep-hooks
   rev: v1.9.0
   hooks:
@@ -37,6 +43,11 @@ repos:
   hooks:
   - id: ufmt
     exclude: "tests/snapshots/.*"
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.0.286
+  hooks:
+  - id: ruff
+    args: ["--fix"]
 - repo: local
   hooks:
   - id: tox

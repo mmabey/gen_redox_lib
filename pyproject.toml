@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "redox_lib_gen"
-version = "0.1.0-alpha.1"
+name = "gen_redox_lib"
+version = "1.1.0"
 description = ""
-authors = ["Mike Mabey <mike.mabey@cedar.com>"]
+authors = ["Mike Mabey <pypi@mikemabey.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
@@ -12,7 +12,7 @@ requests = "^2.31"
 retry2 = "^0.9.3"
 inflection = "^0.5.1"
 Jinja2 = "^3"
-ufmt = "^2.0"
+ufmt = "^2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7"
@@ -20,6 +20,9 @@ pytest-snapshot = "^0.9.0"
 pre-commit = "^3.1"
 tox = "^4.4"
 coveralls = "^3.3.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.286"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -30,6 +33,12 @@ addopts = "--ignore tests/snapshots/"
 
 [tool.usort]
 excludes = ["tests/snapshots/"]
+
+[tool.usort.known]
+first_party = ["gen_redox_lib"]
+
+[tool.ruff]
+extend-exclude = ["tests/snapshots"]
 
 [tool.tox]
 legacy_tox_ini = """
@@ -49,5 +58,5 @@ legacy_tox_ini = """
         ufmt>=2.0
     allowlist_externals = coverage
     commands =
-        coverage run --source redox_lib_gen -m pytest -vv
+        coverage run --source gen_redox_lib -m pytest -vv
 """

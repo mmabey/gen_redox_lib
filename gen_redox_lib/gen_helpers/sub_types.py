@@ -109,7 +109,7 @@ class DeconstructedType:
             return (
                 f"{self.schema_prefix}{schema_type}"
                 if self.schema_prefix
-                else f'"{schema_type}"'
+                else f"{schema_type}"
             )
 
         raise ValueError(f"Unexpected property type: {self.property_type}")

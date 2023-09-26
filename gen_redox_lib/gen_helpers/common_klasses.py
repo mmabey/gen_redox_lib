@@ -19,13 +19,27 @@ class CommonKlassKeeper:
         self.template_filename = "types.py"
         self._klass_defs: KlassNameToKlassDef = defaultdict(EMPTY_KLASS_DEF)
         self._imports = ImportMapping({"pydantic": {"Field"}})
-        self._relative_imports = ImportMapping()
+        self._relative_imports = ImportMapping({"abstract_base": {"MetaBase"}})
         self._generics = _Generics()
 
     @property
     def template(self):
         # Common classes only have non-event-type models, so remove the import for that
         self._relative_imports["abstract_base"].discard("EventTypeAbstractModel")
+
+        # Here, we need to do just a little bit of black magic if the class is the
+        # Meta *generic* type (has RedoxAbstractModel set as its parent). One
+        # reason this is necessary is because of changes introduced in version 2 of
+        # Pydantic.
+        if meta := self._klass_defs.get("Meta"):
+            meta.parent_klass_name = "MetaBase"
+            meta._prop_map = None  # Invalidate property map to force it to be rebuilt
+            meta.properties = [
+                prop
+                for prop in meta.properties
+                if prop.alias not in {"DataModel", "EventType"}
+            ]
+
         yield TemplateInfo(
             dir_name=GENERIC_DIR_NAME,
             file_name=self.template_filename,
@@ -49,7 +63,6 @@ class CommonKlassKeeper:
     def store_and_yield_templates(
         self, template_info_generator: Iterator[TemplateInfo]
     ) -> Iterator[TemplateInfo]:
-
         for template_info in template_info_generator:
             # Store template and imports info in this object
             self.add_klass_defs_to_template(template_info.klass_definitions)
@@ -73,7 +86,7 @@ class _Generics:
         for template in self._templates.values():
             template.prefix_schema_types(f"{prefix}.")
             template.add_import(".", f"types as {prefix}")
-            template.add_import("pyredox", template.model_name.lower())
+            template.add_import("redox", template.model_name.lower())
             template.add_relative_import(
                 "abstract_base", "GenericEventTypeAbstractModel"
             )

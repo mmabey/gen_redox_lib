@@ -4,12 +4,12 @@ This utility *generates* a library for producing/ingesting JSON data that confor
 to the [Redox
 data model specification](https://developer.redoxengine.com/data-models/).
 
-_**NOTE:**_ If you're looking for a library for working with Redox data, you're in
-the wrong place. Search for `pyredox` instead.
+_**NOTE:**_ If you're looking for a library for working with Redox data, please
+consider using the [`redox`](https://github.com/mmabey/redox) project.
 
 ## About
 
-`redox_lib_gen` creates Pydantic models using the Redox data schema and a [Jinja2
+`gen_redox_lib` creates Pydantic models using the Redox data schema and a [Jinja2
 template](https://jinja.palletsprojects.com/en/3.0.x/templates/). The approach was
 inspired by the work of the
 [`fhir.resources`](https://pypi.org/project/fhir.resources/) library and the
@@ -23,7 +23,7 @@ This utility provides two main benefits:
 
 1. It prevents the need to manually create (and then manually verify) models that
    accurately reflect the JSON schema of the Redox data models.
-2. It assists with ensuring the `pyredox` library is up-to-date and consistent with
+2. It assists with ensuring the `redox` library is up-to-date and consistent with
    the Redox schema in the event that the schema either (1) has more detail added to
    it or (2) gets updated by Redox (Redox promises that if an update to the schema
    is ever necessary, "[they] would notify all customers far in advance of the update
@@ -33,7 +33,7 @@ This utility provides two main benefits:
 
 ## Running the Utility
 
-Make sure your working directory is `redox_lib_gen` and activate the virtual
+Make sure your working directory is `gen_redox_lib` and activate the virtual
 environment:
 
 ```shell
@@ -43,7 +43,8 @@ poetry shell
 Then run the `generate.py` script:
 
 ```shell
-cd redox_lib_gen && python3 generate.py
+cd gen_redox_lib
+python3 generate.py
 ```
 
 ### Run Options
@@ -54,7 +55,7 @@ Usage: generate.py [OPTIONS]
   Generate Pydantic models from the Redox JSON specs.
 
 Options:
-  -d, --dst DIRECTORY        The directory where the pyredox library will be
+  -d, --dst DIRECTORY        The directory where the redox library will be
                              generated. NOTE: If the provided path already
                              exists, it will be deleted (along with its
                              contents) before the library is generated or

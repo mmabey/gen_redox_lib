@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
+from subprocess import PIPE, Popen, run, STDOUT
+from time import sleep
 from typing import Callable, Iterator, List, Optional
 
 import click
@@ -11,12 +13,15 @@ from .types import TemplateInfo
 
 
 def process_files(
-    extracted_folder: Path, dst: Path, directories: List[str], template_dir: Path
+    *,
+    extracted_folder: Path,
+    dst: Path,
+    directories: List[str],
+    jinja_template_dir: Path,
 ):
-
     # Create the Jinja environment and template
     jinja_env = Environment(
-        loader=FileSystemLoader(template_dir),
+        loader=FileSystemLoader(jinja_template_dir),
         autoescape=select_autoescape(),
         trim_blocks=True,
         lstrip_blocks=True,
@@ -61,7 +66,7 @@ def process_files(
         )
 
     click.echo("Done")
-    click.echo(f"pyredox files generated at {dst}")
+    click.echo(f"redox library files generated at {dst}")
 
 
 def write_py_files(
@@ -89,7 +94,6 @@ def write_py_files(
         with open(
             lib_dest_dir / template_info.dir_name / template_info.file_name, "w"
         ) as model_file:
-
             model_file.write(template.render(**template_info.as_dict()))
 
         progressbar_updater(template_info.file_name)
@@ -110,3 +114,27 @@ def write_py_files(
                         f"from .{template_info.file_name.rsplit('.', 1)[0]} "
                         f"import {event_class.full_name}\n"
                     )
+
+
+def format_python_files(target_dir: Path):
+    """Run black and isort on the target directory."""
+    target_dir = target_dir.resolve()
+    click.echo("Formatting generated files ", nl=False)
+    p = Popen(
+        ["ufmt", "format", target_dir],
+        universal_newlines=True,
+        stdout=PIPE,
+        stderr=STDOUT,
+    )
+    while p.poll() is None:
+        click.echo(".", nl=False)
+        sleep(1)
+
+    stdout, _ = p.communicate()
+    if p.returncode != 0:
+        click.echo(f"\nEncountered an error - code {p.returncode}\n{stdout}")
+    else:
+        click.echo(f"\n{stdout.splitlines()[-1]}")
+
+    click.echo("Linting/fixing with ruff")
+    run(["ruff", "check", "--fix", "--ignore=E501", target_dir], check=True)

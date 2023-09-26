@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from shutil import copy
 
 import click
 from gen_helpers import download_and_extract, format_python_files, process_files, rmrf
@@ -10,7 +9,7 @@ from requests import HTTPError
 SPEC_URL = "https://developer.redoxengine.com/data-models/schemas.zip"
 PARENT_DIR = Path(__file__).parent.resolve()
 CACHE_DIR = PARENT_DIR / "cache"
-LIB_DEST_DIR = (PARENT_DIR / ".." / ".." / "pyredox" / "pyredox").resolve()
+LIB_DEST_DIR = (PARENT_DIR / ".." / ".." / "redox" / "redox").resolve()
 TEMPLATE_DIR = PARENT_DIR / "templates"
 
 
@@ -24,7 +23,7 @@ TEMPLATE_DIR = PARENT_DIR / "templates"
         file_okay=False, dir_okay=True, writable=True, resolve_path=True, path_type=Path
     ),
     help=(
-        "The directory where the pyredox library will be generated. NOTE: If the "
+        "The directory where the redox library will be generated. NOTE: If the "
         "provided path already exists, it will be deleted (along with its contents) "
         "before the library is generated or saved there."
     ),
@@ -64,7 +63,6 @@ def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
             "so just try again in a minute or so."
         )
         exit(2)
-        return
 
     # Clear the destination dir (minus a few things)
     rmrf(
@@ -74,28 +72,17 @@ def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
             Path("__init__.py"),
             Path("abstract_base.py"),
             Path("factory.py"),
-            Path("field_types.py"),
             Path("tests"),
         },
     )
     dst.mkdir(exist_ok=True)
     (dst / "__init__.py").touch()
 
-    # Copy all files from the templates folder except Jinja2 files
-    for f in TEMPLATE_DIR.glob("**/*.[!jinja2]*"):
-        dst_path = dst / f.relative_to(TEMPLATE_DIR)
-        try:
-            copy(f, dst_path)
-        except FileNotFoundError:
-            # Parent dir may not exist. Create it and then try the copy again.
-            dst_path.parent.mkdir()
-            copy(f, dst_path)
-
     process_files(
-        extracted_folder,
-        dst,
-        [d.name for d in extracted_folder.iterdir() if d.is_dir()],
-        TEMPLATE_DIR,
+        extracted_folder=extracted_folder,
+        dst=dst,
+        directories=[d.name for d in extracted_folder.iterdir() if d.is_dir()],
+        jinja_template_dir=TEMPLATE_DIR,
     )
     format_python_files(dst)
 
