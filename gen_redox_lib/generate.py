@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from pathlib import Path
 
 import click
-from gen_helpers import download_and_extract, format_python_files, process_files, rmrf
 from requests import HTTPError
+
+from gen_redox_lib.gen_helpers import (
+    download_and_extract,
+    format_python_files,
+    process_files,
+    rmrf,
+)
 
 SPEC_URL = "https://developer.redoxengine.com/data-models/schemas.zip"
 PARENT_DIR = Path(__file__).parent.resolve()
