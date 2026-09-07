@@ -128,8 +128,8 @@ class KlassPropertySignatureInfo:
 
     @property
     def field_name(self) -> str:
-        # return f"{self.alias}_"
-        return f"{self.alias}"
+        # Bare name (== the alias); matches pyredox 1.0.4's public API.
+        return self.alias
 
     @property
     def type(self):
@@ -396,14 +396,7 @@ class TemplateInfo:
     # for super simple deduplication of entries, and using a defaultdict instead of a
     # standard dict eliminates the need to check if we've already collected an import
     # from a particular module already.
-    imports: ImportMapping = field(
-        default_factory=lambda: ImportMapping(
-            {
-                "pydantic": {"Field"},
-                # "__future__": {"annotations"},
-            }
-        )
-    )
+    imports: ImportMapping = field(default_factory=lambda: ImportMapping({"pydantic": {"Field"}}))
     relative_imports: ImportMapping = field(default_factory=ImportMapping)
     klass_definitions: list[KlassDefinition] = field(default_factory=list)
     use_simple_types: bool = False
@@ -412,9 +405,9 @@ class TemplateInfo:
 
     @property
     def forward_refs(self):
-        # TODO: Capturing the forward refs isn't necessary for Python 3.7+. See
-        #  https://pydantic-docs.helpmanual.io/usage/postponed_annotations/
-        #  for more info.
+        # Each class with SCHEMA-typed properties needs a `<Class>.model_rebuild()`
+        # call emitted after the whole module is defined, since the generated code
+        # uses quoted forward references rather than `from __future__ import annotations`.
         for klass in self.klass_definitions:
             if klass.has_forward_refs:
                 yield klass.full_name

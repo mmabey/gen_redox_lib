@@ -26,18 +26,11 @@ class CommonKlassKeeper:
         # Common classes only have non-event-type models, so remove the import for that
         self._relative_imports["abstract_base"].discard("EventTypeAbstractModel")
 
-        # Here, we need to do just a little bit of black magic if the class is the
-        # Meta *generic* type (has RedoxAbstractModel set as its parent). One
-        # reason this is necessary is because of changes introduced in version 2 of
-        # Pydantic.
+        # The generic Meta reparents to MetaBase so it inherits DataModel/EventType
+        # as required fields; it keeps its own (optional) copies of them too, which
+        # is fine now that field names are bare.
         if meta := self._klass_defs.get("Meta"):
             meta.parent_klass_name = "MetaBase"
-            # meta._prop_map = None  # Invalidate property map to force it to be rebuilt
-            # meta.properties = [
-            #     prop
-            #     for prop in meta.properties
-            #     if prop.alias not in {"DataModel", "EventType"}
-            # ]
 
         yield TemplateInfo(
             dir_name=GENERIC_DIR_NAME,
