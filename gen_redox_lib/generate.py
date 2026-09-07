@@ -46,24 +46,14 @@ _VENDORED_INTO_PACKAGE = ("abstract_base.py", "factory.py", "field_types.py", "p
 )
 @click.option("--spec-url", default=DEFAULT_SPEC_URL, show_default=True, type=str)
 @click.option(
-    "--redox-session",
-    default=None,
-    help="Redox dashboard session cookie for --force-download (or set $REDOX_SESSION).",
-)
-@click.option(
     "--force-download",
     "-f",
     is_flag=True,
-    help="Fetch a fresh schema bundle from the Redox dashboard and refresh the vendored copy.",
+    help="Fetch a fresh schema bundle from --spec-url and refresh the vendored copy.",
 )
-def main(dst: Path, cache_dir: Path, spec_url: str, redox_session: str | None, force_download: bool) -> None:
+def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool) -> None:
     """Generate Pydantic models from the Redox JSON schema."""
-    extracted = download_and_extract(
-        cache_dir,
-        force_download=force_download,
-        spec_url=spec_url,
-        session=redox_session,
-    )
+    extracted = download_and_extract(cache_dir, force_download=force_download, spec_url=spec_url)
 
     rmrf(dst, exclude=_KEEP_ON_WIPE)
     dst.mkdir(parents=True, exist_ok=True)

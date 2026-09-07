@@ -35,24 +35,15 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install both projects
+      - name: Install gen_redox_lib
         working-directory: gen_redox_lib
-        run: |
-          uv sync --locked
-          uv pip install --python ../redox/.venv ../redox || true
+        run: uv sync --locked
 
-      - name: Regenerate the redox library
+      - name: Regenerate the redox library from the live schema
         working-directory: gen_redox_lib
-        env:
-          REDOX_SESSION: ${{ secrets.REDOX_SESSION }}
-        run: |
-          if [ -n "$REDOX_SESSION" ]; then
-            uv run gen-redox-lib --force-download
-          else
-            uv run gen-redox-lib
-          fi
+        run: uv run gen-redox-lib --force-download
 
-      - name: Lint + type-check the regenerated tree
+      - name: Lint the regenerated tree
         working-directory: redox
         run: |
           uvx ruff check .
