@@ -63,7 +63,7 @@ def _pop_offending_field_values(args_for_new_object: dict, validation_err: Valid
                 joined = "->".join(traversed) if traversed else "Object"
                 msg = f'Cannot traverse to offending field: {joined} has no field "{field}".'
                 raise CannotRectifyValidationError(msg)
-            traversed.append(field)
+            traversed.append(str(field))
             parent = next_in_loc
 
         try:
@@ -131,75 +131,40 @@ class RedoxAbstractModel(BaseModel):
                 _pop_offending_field_values(args, err)
         return new_object
 
-    def model_dump(
-        self,
-        *,
-        mode: str = "python",
-        include: Any = None,
-        exclude: Any = None,
-        by_alias: bool = True,
-        exclude_unset: bool = True,
-        exclude_defaults: bool = False,
-        exclude_none: bool = True,
-        round_trip: bool = False,
-        **kwargs: Any,
-    ) -> dict[str, Any]:
+    # Redox-shaped defaults: emit aliases, drop unset/null fields. Callers can
+    # still override any of these. Kept as **kwargs so the signature stays
+    # compatible as pydantic evolves BaseModel.model_dump*.
+    _REDOX_DUMP_DEFAULTS = {"by_alias": True, "exclude_unset": True, "exclude_none": True}
+
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
         """Dump to a dict, defaulting to Redox-shaped output (aliases, no nulls)."""
-        return super().model_dump(
-            mode=mode,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            round_trip=round_trip,
-            **kwargs,
-        )
+        for key, value in self._REDOX_DUMP_DEFAULTS.items():
+            kwargs.setdefault(key, value)
+        return super().model_dump(**kwargs)
 
-    def model_dump_json(
-        self,
-        *,
-        indent: int | None = None,
-        include: Any = None,
-        exclude: Any = None,
-        by_alias: bool = True,
-        exclude_unset: bool = True,
-        exclude_defaults: bool = False,
-        exclude_none: bool = True,
-        round_trip: bool = False,
-        **kwargs: Any,
-    ) -> str:
+    def model_dump_json(self, **kwargs: Any) -> str:
         """Dump to a JSON string, with the same Redox-shaped defaults as ``model_dump``."""
-        return super().model_dump_json(
-            indent=indent,
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            round_trip=round_trip,
-            **kwargs,
-        )
+        for key, value in self._REDOX_DUMP_DEFAULTS.items():
+            kwargs.setdefault(key, value)
+        return super().model_dump_json(**kwargs)
 
-    def dict(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+    def dict(self, **kwargs: Any) -> dict[str, Any]:
         """Deprecated Pydantic v1 alias for :meth:`model_dump`."""
         warnings.warn(
             "`.dict()` is deprecated; use `.model_dump()` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.model_dump(*args, **kwargs)
+        return self.model_dump(**kwargs)
 
-    def json(self, *args: Any, **kwargs: Any) -> str:
+    def json(self, **kwargs: Any) -> str:
         """Deprecated Pydantic v1 alias for :meth:`model_dump_json`."""
         warnings.warn(
             "`.json()` is deprecated; use `.model_dump_json()` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.model_dump_json(*args, **kwargs)
+        return self.model_dump_json(**kwargs)
 
 
 class MetaBase(RedoxAbstractModel):
@@ -234,28 +199,28 @@ class GenericEventTypeAbstractModel(RedoxAbstractModel):
             raise AttributeError(msg)
         return event_class.model_validate(super().model_dump())
 
-    def redox_dict(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+    def redox_dict(self, **kwargs: Any) -> dict[str, Any]:
         """Convert to the proper Redox model, then :meth:`model_dump` it."""
-        return self.to_redox().model_dump(*args, **kwargs)
+        return self.to_redox().model_dump(**kwargs)
 
-    def redox_json(self, *args: Any, **kwargs: Any) -> str:
+    def redox_json(self, **kwargs: Any) -> str:
         """Convert to the proper Redox model, then :meth:`model_dump_json` it."""
-        return self.to_redox().model_dump_json(*args, **kwargs)
+        return self.to_redox().model_dump_json(**kwargs)
 
-    def dict(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+    def dict(self, **kwargs: Any) -> dict[str, Any]:
         """Deprecated alias; converts to the proper Redox model first."""
         warnings.warn(
             "`.dict()` is deprecated; use `.redox_dict()` or `.model_dump()` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.redox_dict(*args, **kwargs)
+        return self.redox_dict(**kwargs)
 
-    def json(self, *args: Any, **kwargs: Any) -> str:
+    def json(self, **kwargs: Any) -> str:
         """Deprecated alias; converts to the proper Redox model first."""
         warnings.warn(
             "`.json()` is deprecated; use `.redox_json()` or `.model_dump_json()` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.redox_json(*args, **kwargs)
+        return self.redox_json(**kwargs)

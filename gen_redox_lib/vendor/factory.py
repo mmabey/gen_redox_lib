@@ -72,12 +72,17 @@ def redox_object_factory(
     if isinstance(json_payload, str):
         json_payload = loads(json_payload)
     if isinstance(json_payload, list):
-        return [redox_object_factory(item) for item in json_payload]
-    if not isinstance(json_payload, dict):
-        msg = f"Can only create Redox objects from a valid JSON payload, got {type(json_payload)}"
-        raise TypeError(msg)
+        return [_one(item) for item in json_payload]
+    return _one(json_payload)
 
-    return get_class_type(json_payload).model_validate(json_payload)
+
+def _one(payload: object) -> EventTypeAbstractModel:
+    if isinstance(payload, str):
+        payload = loads(payload)
+    if not isinstance(payload, dict):
+        msg = f"Can only create Redox objects from a valid JSON payload, got {type(payload)}"
+        raise TypeError(msg)
+    return get_class_type(payload).model_validate(payload)
 
 
 def from_redox_to_generic(
