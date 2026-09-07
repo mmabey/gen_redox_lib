@@ -8,7 +8,6 @@ opens a PR with ``gh``. If not, it force-pushes a timestamp to this repo's
 60 days of inactivity.
 """
 
-import sys
 import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
@@ -97,11 +96,10 @@ def heartbeat() -> None:
     repository activity, and using a throwaway branch keeps ``main`` and its
     protections untouched.
     """
-    marker = GEN_REPO / ".heartbeat"
-    marker.write_text(datetime.now(tz=UTC).isoformat() + "\n")
+    (GEN_REPO / ".heartbeat").write_text(datetime.now(tz=UTC).isoformat() + "\n")
     with temp_chdir(GEN_REPO):
-        run(["git", "add", str(marker)], check=True)
-        run(["git", "commit", "-m", "chore: schema-check heartbeat", "--no-verify"], check=True)
+        run(["git", "add", "--force", ".heartbeat"], check=True)
+        run(["git", "commit", "--no-verify", "-m", "chore: schema-check heartbeat"], check=True)
         run(["git", "push", "--force", "origin", f"HEAD:refs/heads/{HEARTBEAT_BRANCH}"], check=True)
         run(["git", "reset", "--hard", "HEAD~1"], check=True)
     click.echo(f"Pushed heartbeat to {HEARTBEAT_BRANCH}.")
@@ -109,10 +107,10 @@ def heartbeat() -> None:
 
 @click.command()
 @click.option("--version", "version_only", is_flag=True, help="Only bump the version files.")
-def main(version_only: bool) -> int:
+def main(version_only: bool) -> None:
     if version_only:
         bump_version()
-        return 0
+        return
     try:
         num_changes = count_changes()
         if num_changes:
@@ -122,10 +120,9 @@ def main(version_only: bool) -> int:
         else:
             heartbeat()
     except CalledProcessError as err:
-        click.echo(f"Command failed: {err.cmd}")
-        return 1
-    return 0
+        msg = f"Command failed: {err.cmd}"
+        raise SystemExit(msg) from err
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
