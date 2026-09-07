@@ -115,22 +115,31 @@ def write_py_files(
                     )
 
 
-def format_python_files(target_dir: Path):
-    """Lint-fix and format the generated tree with ruff.
+SHARED_RUFF_CONFIG = (Path(__file__).resolve().parent.parent / "vendor" / "ruff.toml").read_text()
 
-    The generator must emit code that already passes the project's ruff config
-    (see the ``lint`` gate in ``handle_updates.yml``), so this runs the same
-    ``ruff check --fix`` + ``ruff format`` that CI enforces, scoped to the
-    generated directory and ignoring the ``.ruff.toml`` written alongside it.
+
+def format_python_files(target_dir: Path):
+    """Make the generated tree pass ruff, then verify it.
+
+    The generator owns the redox repo's lint config: it (re)writes ``.ruff.toml``
+    at the repo root from the vendored template, runs ``ruff check --fix`` +
+    ``ruff format``, then a final strict ``ruff check`` that raises if anything
+    remains. This is what lets ``handle_updates.yml`` trust that a regenerated
+    tree is ship-ready before opening a PR.
     """
     target_dir = target_dir.resolve()
+    repo_root = target_dir.parent
     ruff = shutil.which("ruff")
     if ruff is None:  # pragma: no cover - ruff is a hard dependency
         msg = "`ruff` is not on PATH; it is a runtime dependency of gen_redox_lib."
         raise RuntimeError(msg)
 
-    click.echo("Auto-fixing generated files with ruff")
-    run([ruff, "check", "--fix", "--unsafe-fixes", "--quiet", str(target_dir)], check=True)  # noqa: S603
+    (repo_root / ".ruff.toml").write_text(SHARED_RUFF_CONFIG)
 
+    click.echo("Auto-fixing generated files with ruff")
+    run([ruff, "check", "--fix", "--unsafe-fixes", "--quiet", str(repo_root)], check=False)  # noqa: S603
     click.echo("Formatting generated files with ruff")
-    run([ruff, "format", "--quiet", str(target_dir)], check=True)  # noqa: S603
+    run([ruff, "format", "--quiet", str(repo_root)], check=True)  # noqa: S603
+
+    click.echo("Verifying the generated tree is lint-clean")
+    run([ruff, "check", str(repo_root)], check=True)  # noqa: S603
