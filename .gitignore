@@ -7,4 +7,3 @@
 .tox
 dist
 docs/_build/
-.heartbeat
