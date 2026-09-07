@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
+from collections.abc import Collection
 from functools import reduce
 from operator import add
 from pathlib import Path
-from typing import Collection, List, Optional
 
 from .sub_types import DeconstructedType, KlassPropertyType
 from .types import ImportMapping, KlassDefinition, PropertyTypeInfo
@@ -15,12 +14,12 @@ SCHEMA = KlassPropertyType.SCHEMA
 
 def rmrf(
     dir_path: Path,
-    exclude: Optional[Collection[Path]] = None,
-    exclude_relative_to: Optional[Path] = None,
+    exclude: Collection[Path] | None = None,
+    exclude_relative_to: Path | None = None,
 ):
     """Rim raff that riffraff!"""
     if not dir_path.exists():
-        return
+        return None
 
     # Capture dir sent to the first call
     if exclude_relative_to is None:
@@ -30,14 +29,13 @@ def rmrf(
     if exclude is None:
         exclude = set()
     elif not isinstance(exclude, (set, list, tuple)):
-        raise TypeError(
-            f"Exclude param must be a list, tuple, set, or None, not {type(exclude)}"
-        )
+        msg = f"Exclude param must be a list, tuple, set, or None, not {type(exclude)}"
+        raise TypeError(msg)
     else:
         exclude = {exclude_relative_to / d for d in exclude}
 
     if dir_path in exclude:
-        return
+        return None
 
     if not dir_path.is_dir():
         return dir_path.unlink()
@@ -54,9 +52,7 @@ def rmrf(
             raise
 
 
-def get_property_type(
-    type_str: str | List[str], klass_def: Optional[KlassDefinition] = None
-) -> PropertyTypeInfo:
+def get_property_type(type_str: str | list[str], klass_def: KlassDefinition | None = None) -> PropertyTypeInfo:
     """Translate the str of a JSON schema type field to a Python typehint."""
 
     if isinstance(type_str, list):
@@ -64,12 +60,15 @@ def get_property_type(
         return _get_sub_object_prop_type([get_property_type(p) for p in type_str])
 
     if type_str == "object":
+        if klass_def is None:
+            msg = "An 'object' property needs its KlassDefinition"
+            raise ValueError(msg)
         return PropertyTypeInfo(
             _raw_type=DeconstructedType(SCHEMA, {klass_def.full_name}),
             _raw_type_simplified=DeconstructedType(SCHEMA, {klass_def.klass_name}),
         )
 
-    elif type_str == "array":
+    if type_str == "array":
         return _get_array_prop_type(klass_def)
 
     type_mapping = {
@@ -82,20 +81,20 @@ def get_property_type(
     try:
         prop_type = type_mapping[type_str]
     except KeyError as err:
-        raise ValueError(f"Unknown property type: {type_str}") from err
+        msg = f"Unknown property type: {type_str}"
+        raise ValueError(msg) from err
 
     return PropertyTypeInfo(_raw_type=DeconstructedType(NATIVE, {prop_type}))
 
 
-def _get_sub_object_prop_type(type_infos: List[PropertyTypeInfo]) -> PropertyTypeInfo:
+def _get_sub_object_prop_type(type_infos: list[PropertyTypeInfo]) -> PropertyTypeInfo:
     """Get property type info for each subtype, returned combined."""
     if SCHEMA in (t.type_class for t in type_infos):
-        raise ValueError("Unsure how to deal with combining schema types here")
+        msg = "Unsure how to deal with combining schema types here"
+        raise ValueError(msg)
 
     # Combine all the imports and relative imports
-    imports = reduce(
-        add, (t.imports for t in type_infos), ImportMapping({"typing": {"Union"}})
-    )
+    imports = reduce(add, (t.imports for t in type_infos), ImportMapping())
     relative_imports = reduce(add, (t.relative_imports for t in type_infos))
 
     # Make sure the list isn't just a set of None values
@@ -104,9 +103,7 @@ def _get_sub_object_prop_type(type_infos: List[PropertyTypeInfo]) -> PropertyTyp
 
     # Create the union of the subtypes
     prop_type = DeconstructedType(UNION, {t.type for t in type_infos})
-    prop_type_simplified = DeconstructedType(
-        UNION, {t.type_simplified for t in type_infos}
-    )
+    prop_type_simplified = DeconstructedType(UNION, {t.type_simplified for t in type_infos})
     if len(prop_type_simplified.types) == 0:
         prop_type_simplified = None  # Force simplified type to mirror the regular type
 
@@ -119,7 +116,7 @@ def _get_sub_object_prop_type(type_infos: List[PropertyTypeInfo]) -> PropertyTyp
 
 
 def _get_array_prop_type(
-    klass_def: Optional[KlassDefinition] = None,
+    klass_def: KlassDefinition | None = None,
 ) -> PropertyTypeInfo:
     """Get the property type info for an array of types from the klass.
 
@@ -129,22 +126,14 @@ def _get_array_prop_type(
     chance this may change in the future.
     """
 
-    schema_def = getattr(klass_def, "schema_def", None)
-    if schema_def and schema_def.get("type") == "object":
+    schema_def = klass_def.schema_def if klass_def is not None else None
+    if klass_def is not None and schema_def and schema_def.get("type") == "object":
         return PropertyTypeInfo(
-            _raw_type=DeconstructedType(
-                LIST, {DeconstructedType(SCHEMA, {klass_def.full_name})}
-            ),
-            _raw_type_simplified=DeconstructedType(
-                LIST, {DeconstructedType(SCHEMA, {klass_def.klass_name})}
-            ),
-            imports=ImportMapping({"typing": {"List"}}),
+            _raw_type=DeconstructedType(LIST, {DeconstructedType(SCHEMA, {klass_def.full_name})}),
+            _raw_type_simplified=DeconstructedType(LIST, {DeconstructedType(SCHEMA, {klass_def.klass_name})}),
         )
 
     return PropertyTypeInfo(
         _raw_type=DeconstructedType(LIST, {DeconstructedType(NATIVE, {"str"})}),
-        _raw_type_simplified=DeconstructedType(
-            LIST, {DeconstructedType(NATIVE, {"str"})}
-        ),
-        imports=ImportMapping({"typing": {"List"}}),
+        _raw_type_simplified=DeconstructedType(LIST, {DeconstructedType(NATIVE, {"str"})}),
     )

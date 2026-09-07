@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-from typing import Optional
-
-
 REDOX_DEV_DOCS_URL_BASE = "https://developer.redoxengine.com/data-models/"
 
 
@@ -9,7 +5,7 @@ class NameTranslationNotFoundError(ValueError):
     pass
 
 
-def get_name_trans(name_stem: str, dir_stem: Optional[str] = None) -> str:
+def get_name_trans(name_stem: str, dir_stem: str | None = None) -> str:
     try:
         return NAME_TRANSLATIONS[name_stem]
     except KeyError as err:
@@ -17,11 +13,12 @@ def get_name_trans(name_stem: str, dir_stem: Optional[str] = None) -> str:
         if dir_trans := NAME_TRANSLATIONS.get(dir_stem):
             page = f"{dir_trans}.html"
 
-        raise NameTranslationNotFoundError(
+        msg = (
             f'Missing name translation for "{name_stem}"\nMost likely, an entry needs '
             f"to be added to the NAME_TRANSLATIONS dict.\nYou may find helpful "
             f"information here: {REDOX_DEV_DOCS_URL_BASE}{page}"
-        ) from err
+        )
+        raise NameTranslationNotFoundError(msg) from err
 
 
 GENERIC_DIR_NAME = "generic"

@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 from collections import defaultdict
+from collections.abc import Iterator
 from copy import copy
-from typing import DefaultDict, Dict, Iterator, List
 
 from .constants import GENERIC_DIR_NAME, get_name_trans
 from .empty_klass import EMPTY_KLASS_DEF
@@ -9,13 +8,13 @@ from .types import GenericsTemplateInfo, ImportMapping, KlassDefinition, Templat
 
 # Typing helpers
 KlassName = str
-KlassNameToKlassDef = DefaultDict[KlassName, KlassDefinition]
+KlassNameToKlassDef = defaultdict[KlassName, KlassDefinition]
 ModelName = str
-ModelNameToTemplate = Dict[ModelName, GenericsTemplateInfo]
+ModelNameToTemplate = dict[ModelName, GenericsTemplateInfo]
 
 
 class CommonKlassKeeper:
-    def __init__(self):
+    def __init__(self) -> None:
         self.template_filename = "types.py"
         self._klass_defs: KlassNameToKlassDef = defaultdict(EMPTY_KLASS_DEF)
         self._imports = ImportMapping({"pydantic": {"Field"}})
@@ -27,18 +26,11 @@ class CommonKlassKeeper:
         # Common classes only have non-event-type models, so remove the import for that
         self._relative_imports["abstract_base"].discard("EventTypeAbstractModel")
 
-        # Here, we need to do just a little bit of black magic if the class is the
-        # Meta *generic* type (has RedoxAbstractModel set as its parent). One
-        # reason this is necessary is because of changes introduced in version 2 of
-        # Pydantic.
+        # The generic Meta reparents to MetaBase so it inherits DataModel/EventType
+        # as required fields; it keeps its own (optional) copies of them too, which
+        # is fine now that field names are bare.
         if meta := self._klass_defs.get("Meta"):
             meta.parent_klass_name = "MetaBase"
-            meta._prop_map = None  # Invalidate property map to force it to be rebuilt
-            meta.properties = [
-                prop
-                for prop in meta.properties
-                if prop.alias not in {"DataModel", "EventType"}
-            ]
 
         yield TemplateInfo(
             dir_name=GENERIC_DIR_NAME,
@@ -55,14 +47,12 @@ class CommonKlassKeeper:
         yield from self._generics.templates
         yield from self.template
 
-    def add_klass_defs_to_template(self, klass_defs: List[KlassDefinition]):
+    def add_klass_defs_to_template(self, klass_defs: list[KlassDefinition]) -> None:
         for klass_def in klass_defs:
             if not klass_def.is_event_type:
                 self._klass_defs[klass_def.klass_name] |= klass_def
 
-    def store_and_yield_templates(
-        self, template_info_generator: Iterator[TemplateInfo]
-    ) -> Iterator[TemplateInfo]:
+    def store_and_yield_templates(self, template_info_generator: Iterator[TemplateInfo]) -> Iterator[TemplateInfo]:
         for template_info in template_info_generator:
             # Store template and imports info in this object
             self.add_klass_defs_to_template(template_info.klass_definitions)
@@ -77,7 +67,7 @@ class CommonKlassKeeper:
 
 
 class _Generics:
-    def __init__(self):
+    def __init__(self) -> None:
         self._templates: ModelNameToTemplate = {}
 
     @property
@@ -87,16 +77,14 @@ class _Generics:
             template.prefix_schema_types(f"{prefix}.")
             template.add_import(".", f"types as {prefix}")
             template.add_import("redox", template.model_name.lower())
-            template.add_relative_import(
-                "abstract_base", "GenericEventTypeAbstractModel"
-            )
+            template.add_relative_import("abstract_base", "GenericEventTypeAbstractModel")
             yield template
 
     @property
     def keys(self):
         yield from self._templates.keys()
 
-    def store(self, t_info: TemplateInfo):
+    def store(self, t_info: TemplateInfo) -> None:
         model_name = get_name_trans(t_info.dir_name)
         if model_name not in self._templates:
             self._templates[model_name] = GenericsTemplateInfo(

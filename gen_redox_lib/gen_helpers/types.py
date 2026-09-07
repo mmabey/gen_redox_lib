@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 from collections import defaultdict
+from collections.abc import Generator
 from copy import copy
 from dataclasses import dataclass, field
 from functools import total_ordering
 from itertools import chain
 from pathlib import Path
-from typing import DefaultDict, Generator, List, Optional, Union
 
 from .constants import GENERIC_DIR_NAME
 from .empty_klass import EMPTY_KLASS_DEF, EMPTY_KLASS_PROPERTY
@@ -48,7 +47,7 @@ class ImportMapping(defaultdict):
     >>> {'os': {'getcwd', 'setuid', 'path'}} == imports1 + imports2  # True
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if "default_factory" in kwargs:
             kwargs.pop("default_factory")
         super().__init__(set, *args, **kwargs)
@@ -62,19 +61,13 @@ class ImportMapping(defaultdict):
             return NotImplemented
 
         merged = ImportMapping()
-        for module, set_of_names_to_import in chain(
-            self.items(), (other or {}).items()
-        ):
+        for module, set_of_names_to_import in chain(self.items(), (other or {}).items()):
             merged[module].update(set_of_names_to_import)
 
         return merged
 
-    def __repr__(self):
-        return (
-            "ImportMapping({"
-            f"{', '.join([f'{repr(k)}: {repr(v)}' for k, v in self.items()])}"
-            "})"
-        )
+    def __repr__(self) -> str:
+        return f"ImportMapping({{{', '.join([f'{k!r}: {v!r}' for k, v in self.items()])}}})"
 
 
 @dataclass
@@ -82,7 +75,7 @@ class PropertyTypeInfo:
     """The information about a property from the schema."""
 
     _raw_type: DeconstructedType
-    _raw_type_simplified: Optional[DeconstructedType] = None
+    _raw_type_simplified: DeconstructedType | None = None
     imports: ImportMapping = field(default_factory=ImportMapping)
     relative_imports: ImportMapping = field(default_factory=ImportMapping)
 
@@ -100,13 +93,13 @@ class PropertyTypeInfo:
     def type_class(self) -> KlassPropertyType:
         return self._raw_type.property_type
 
-    def prefix_schema_types(self, prefix: str):
+    def prefix_schema_types(self, prefix: str) -> None:
         self._raw_type.schema_prefix = prefix
         if self._raw_type_simplified is not None:
             self._raw_type_simplified.schema_prefix = prefix
 
     def __or__(self, other: "PropertyTypeInfo"):
-        if None in (self._raw_type_simplified, other._raw_type_simplified):
+        if self._raw_type_simplified is None or other._raw_type_simplified is None:
             simplified = self._raw_type_simplified or other._raw_type_simplified
         else:
             simplified = self._raw_type_simplified | other._raw_type_simplified
@@ -134,8 +127,9 @@ class KlassPropertySignatureInfo:
     appears_in: set  # This is largely for debugging purposes, but it is VERY useful
 
     @property
-    def field_name(self):
-        return f"{self.alias}_"
+    def field_name(self) -> str:
+        # Bare name (== the alias); matches pyredox 1.0.4's public API.
+        return self.alias
 
     @property
     def type(self):
@@ -149,7 +143,7 @@ class KlassPropertySignatureInfo:
     def type_class(self):
         return self.type_info.type_class
 
-    def prefix_schema_types(self, prefix: str):
+    def prefix_schema_types(self, prefix: str) -> None:
         self.type_info.prefix_schema_types(prefix)
 
     def __copy__(self):
@@ -181,14 +175,12 @@ class KlassPropertySignatureInfo:
             new_prop.required = False
             return new_prop
 
-        elif not isinstance(other, self.__class__):
+        if not isinstance(other, self.__class__):
             return NotImplemented
 
         if self.alias != other.alias:
-            raise ValueError(
-                "Name must be the same to combine KlassPropertySignatureInfo objects: "
-                f"{self.alias} vs {other.alias}"
-            )
+            msg = f"Name must be the same to combine KlassPropertySignatureInfo objects: {self.alias} vs {other.alias}"
+            raise ValueError(msg)
 
         return KlassPropertySignatureInfo(
             type_info=self.type_info | other.type_info,
@@ -208,23 +200,11 @@ class KlassPropertySignatureInfo:
             )
         )
 
-    def __eq__(self, other: "KlassPropertySignatureInfo"):
-        """Compare the property with another.
-
-        :param other: Another instance of ``KlassPropertySignatureInfo``.
-        :returns: ``True`` if ``name``, ``type``, ``type_class``,
-            ``type_simplified``, and ``required`` are all the same for both
-            objects.
-        """
-        return (
-            (
-                self.alias == other.alias
-                and self.type_info == other.type_info
-                and self.required == other.required
-            )
-            if isinstance(other, self.__class__)
-            else NotImplemented
-        )
+    def __eq__(self, other: object) -> bool:
+        """True if ``alias``, ``type_info`` and ``required`` all match."""
+        if not isinstance(other, KlassPropertySignatureInfo):
+            return NotImplemented
+        return self.alias == other.alias and self.type_info == other.type_info and self.required == other.required
 
     def __lt__(self, other: "KlassPropertySignatureInfo"):
         """Compare the property with another.
@@ -245,14 +225,12 @@ class KlassPropertySignatureInfo:
             return False
 
         # Only case left is where the names are equal
-        if (
+        return bool(
             self.type_class.value < other.type_class.value
             or self.type < other.type
             or self.type_simplified < other.type_simplified
             or int(self.required) < int(other.required)
-        ):
-            return True
-        return False
+        )
 
 
 @dataclass
@@ -268,13 +246,11 @@ class KlassDefinition:
     dir_name: str
 
     parent_klass_name: str = ""
-    schema_def: Optional[dict] = None
-    properties: List[KlassPropertySignatureInfo] = field(default_factory=list)
+    schema_def: dict | None = None
+    properties: list[KlassPropertySignatureInfo] = field(default_factory=list)
     has_forward_refs: bool = False  # Is True if any properties are of type SCHEMA
     is_event_type: bool = False
-    _prop_map: DefaultDict[
-        str, Union[KlassPropertySignatureInfo, EMPTY_KLASS_PROPERTY]
-    ] = None
+    _prop_map: "defaultdict[str, KlassPropertySignatureInfo] | None" = None
 
     @property
     def full_name(self):
@@ -284,7 +260,7 @@ class KlassDefinition:
         return f"{self.parent_klass_name}{self.klass_name}"
 
     @property
-    def base_klass(self):
+    def base_klass(self) -> str:
         if self.is_event_type:
             return "EventTypeAbstractModel"
         if self.parent_klass_name == "MetaBase":
@@ -301,7 +277,7 @@ class KlassDefinition:
             )
         return self._prop_map
 
-    def prefix_schema_types(self, prefix: str):
+    def prefix_schema_types(self, prefix: str) -> None:
         for p in self.properties:
             p.prefix_schema_types(prefix)
 
@@ -329,17 +305,15 @@ class KlassDefinition:
         """
         if other is EMPTY_KLASS_DEF:
             return copy(self)
-        elif not isinstance(other, self.__class__):
+        if not isinstance(other, self.__class__):
             return NotImplemented
 
         if self.klass_name != other.klass_name:
-            raise ValueError(
-                "KlassDefinition objects' klass_name must match to combine them"
-            )
+            msg = "KlassDefinition objects' klass_name must match to combine them"
+            raise ValueError(msg)
 
         combined_properties = {
-            k: self.prop_map[k] | other.prop_map[k]
-            for k in chain(self.prop_map.keys(), other.prop_map.keys())
+            k: self.prop_map[k] | other.prop_map[k] for k in chain(self.prop_map.keys(), other.prop_map.keys())
         }
 
         return KlassDefinition(
@@ -353,21 +327,14 @@ class KlassDefinition:
     def __hash__(self):
         return hash((self.full_name, self.is_event_type, set(self.properties)))
 
-    def __eq__(self, other: "KlassDefinition"):
-        """Compare the klass with another klass.
-
-        :param other: Another instance of ``KlassDefinition``.
-        :returns: ``True`` if ``full_name``, ``is_event_type``, and
-            ``properties`` are equal for both objects.
-        """
+    def __eq__(self, other: object) -> bool:
+        """True if ``full_name``, ``is_event_type`` and ``properties`` all match."""
+        if not isinstance(other, KlassDefinition):
+            return NotImplemented
         return (
-            (
-                self.full_name == other.full_name
-                and self.is_event_type == self.is_event_type
-                and set(self.properties) == set(other.properties)
-            )
-            if isinstance(other, self.__class__)
-            else NotImplemented
+            self.full_name == other.full_name
+            and self.is_event_type == other.is_event_type
+            and set(self.properties) == set(other.properties)
         )
 
     def __lt__(self, other: "KlassDefinition"):
@@ -396,16 +363,11 @@ class KlassDefinition:
         # Only case left is where the names are equal
         self_props_set = set(self.properties)
         other_props_set = set(other.properties)
-        if (
+        return bool(
             int(self.is_event_type) < int(other.is_event_type)
             or self_props_set < other_props_set  # Is it a proper subset
-            or (
-                len(self_props_set - other_props_set)
-                < len(other_props_set - self_props_set)
-            )
-        ):
-            return True
-        return False
+            or (len(self_props_set - other_props_set) < len(other_props_set - self_props_set))
+        )
 
 
 @dataclass
@@ -419,22 +381,18 @@ class TemplateInfo:
     # for super simple deduplication of entries, and using a defaultdict instead of a
     # standard dict eliminates the need to check if we've already collected an import
     # from a particular module already.
-    imports: ImportMapping = field(
-        default_factory=lambda: ImportMapping(
-            {"pydantic": {"Field"}, "__future__": {"annotations"}}
-        )
-    )
+    imports: ImportMapping = field(default_factory=lambda: ImportMapping({"pydantic": {"Field"}}))
     relative_imports: ImportMapping = field(default_factory=ImportMapping)
-    klass_definitions: List[KlassDefinition] = field(default_factory=list)
+    klass_definitions: list[KlassDefinition] = field(default_factory=list)
     use_simple_types: bool = False
     jinja_template_file_name: str = "template-resource.jinja2"
     add_event_types_to_init: bool = True
 
     @property
     def forward_refs(self):
-        # TODO: Capturing the forward refs isn't necessary for Python 3.7+. See
-        #  https://pydantic-docs.helpmanual.io/usage/postponed_annotations/
-        #  for more info.
+        # Each class with SCHEMA-typed properties needs a `<Class>.model_rebuild()`
+        # call emitted after the whole module is defined, since the generated code
+        # uses quoted forward references rather than `from __future__ import annotations`.
         for klass in self.klass_definitions:
             if klass.has_forward_refs:
                 yield klass.full_name
@@ -454,11 +412,11 @@ class TemplateInfo:
             if k.is_event_type:
                 yield k
 
-    def prefix_schema_types(self, prefix: str):
+    def prefix_schema_types(self, prefix: str) -> None:
         for k in self.klass_definitions:
             k.prefix_schema_types(prefix)
 
-    def add_klass_def(self, klass_definition: KlassDefinition):
+    def add_klass_def(self, klass_definition: KlassDefinition) -> None:
         if klass_definition.is_event_type:
             self.add_relative_import("abstract_base", "EventTypeAbstractModel")
         else:
@@ -471,14 +429,14 @@ class TemplateInfo:
         This is *NOT* a replacement for ``dataclasses.asdict()`` since the two
         *DO NOT* have the same output.
         """
-        return dict(
-            imports=self.imports,
-            relative_imports=self.relative_imports,
-            klass_definitions=self.klass_definitions,
-            forward_refs=self.forward_refs,
-            dir_dist_from_abstract=self.dir_distance_from_abstract,
-            use_simple_types=self.use_simple_types,
-        )
+        return {
+            "imports": self.imports,
+            "relative_imports": self.relative_imports,
+            "klass_definitions": self.klass_definitions,
+            "forward_refs": self.forward_refs,
+            "dir_dist_from_abstract": self.dir_distance_from_abstract,
+            "use_simple_types": self.use_simple_types,
+        }
 
     def __add__(self, other: "TemplateInfo") -> "TemplateInfo":
         """Combine the values of two TemplateInfo classes.
@@ -489,15 +447,17 @@ class TemplateInfo:
             for the same destination file.
         """
         if self.dir_name != other.dir_name:
-            raise DirOrFileMismatchError(
+            msg = (
                 "TemplateInfo instances can only be combined if they have the same "
                 f"dir_name. Got {self.dir_name} vs {other.dir_name}. "
             )
+            raise DirOrFileMismatchError(msg)
         if self.file_name != other.file_name:
-            raise DirOrFileMismatchError(
+            msg = (
                 "TemplateInfo instances can only be combined if they have the same "
                 f"file_name. Got {self.file_name} vs {other.file_name}."
             )
+            raise DirOrFileMismatchError(msg)
 
         return TemplateInfo(
             dir_name=self.dir_name,
@@ -507,15 +467,15 @@ class TemplateInfo:
             klass_definitions=self.klass_definitions + other.klass_definitions,
         )
 
-    def add_imports(self, more_imports: ImportMapping):
+    def add_imports(self, more_imports: ImportMapping) -> None:
         """Merge an import mapping into this instance's import set."""
         self.imports += more_imports
 
-    def add_relative_imports(self, more_imports: ImportMapping):
+    def add_relative_imports(self, more_imports: ImportMapping) -> None:
         """Merge an import mapping into this instance's relative import set."""
         self.relative_imports += more_imports
 
-    def add_import(self, *import_names: str):
+    def add_import(self, *import_names: str) -> None:
         """Include the given import names to the set of stored imports.
 
         Can be called in one of three ways:
@@ -541,7 +501,7 @@ class TemplateInfo:
             module = ".".join(import_names[:-1])
             self.imports[module].add(import_names[-1])
 
-    def add_relative_import(self, *import_names: str):
+    def add_relative_import(self, *import_names: str) -> None:
         """Include the given import names to the set of stored relative imports.
 
         Can be called in one of three ways:

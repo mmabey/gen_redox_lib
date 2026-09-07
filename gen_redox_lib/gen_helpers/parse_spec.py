@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
+
+from collections.abc import Iterator
 from dataclasses import dataclass
 from json import load
 from pathlib import Path
-from typing import Iterator, Union
 
 from inflection import singularize
 
@@ -32,7 +33,7 @@ def parse_and_build_models(spec_dir: Path) -> Iterator[TemplateInfo]:
     """
 
     for spec_file_path in spec_dir.iterdir():
-        with open(spec_file_path) as spec_file:
+        with spec_file_path.open() as spec_file:
             schema_def = load(spec_file)
 
         dir_stem = spec_dir.stem  # Remove any parent dirs from the Path obj
@@ -71,8 +72,9 @@ def create_template_info(klass_def: KlassDefinition, file_name: str) -> Template
     """
 
     t_info = TemplateInfo(dir_name=klass_def.dir_name, file_name=file_name)
+    schema_def = klass_def.schema_def or {}
 
-    for subklass_info in _get_subklasses(klass_def.schema_def["properties"], klass_def):
+    for subklass_info in _get_subklasses(schema_def.get("properties", {}), klass_def):
         if subklass_info.subklass is not None:
             t_info += create_template_info(subklass_info.subklass, file_name)
 
@@ -83,20 +85,13 @@ def create_template_info(klass_def: KlassDefinition, file_name: str) -> Template
     return t_info
 
 
-def _get_subklasses(
-    properties: dict, klass_def: KlassDefinition
-) -> Iterator[Union["_SubklassInfo", None]]:
-    """Generate info on all properties in the parent ``KlassDefinition``.
+def _get_subklasses(properties: dict, klass_def: KlassDefinition) -> Iterator[_SubklassInfo]:
+    """Yield a ``_SubklassInfo`` for every property of the parent class.
 
-    :param properties: The value from the parent JSON object's "properties" key.
-    :param klass_def: The ``Klass_definition`` instance for the parent object.
-    :returns: The iterator for this function yields a ``_SubklassInfo``
-        dataclass instance with the subklass's ``KlassDefinition`` instance and
-        the regular and relative imports that need to be added to the template.
-        If a property from the parent object does not need to have a subklass
-        definition, that part of the yielded value will be ``None``.
+    ``_SubklassInfo.subklass`` is ``None`` when the property is a scalar (or an
+    array of scalars) and needs no nested class of its own.
     """
-
+    required = set((klass_def.schema_def or {}).get("required", []))
     prop_name: str
     prop_info: dict
     for prop_name, prop_info in properties.items():
@@ -111,9 +106,7 @@ def _get_subklasses(
             klass_def.has_forward_refs = True
 
         # Array JSON type - Its subtypes will need their own KlassDefinition
-        elif (
-            prop_info["type"] == "array" and prop_info["items"].get("type") == "object"
-        ):
+        elif prop_info["type"] == "array" and prop_info["items"].get("type") == "object":
             subklass = KlassDefinition(
                 parent_klass_name=klass_def.full_name,
                 klass_name=singularize(prop_name),
@@ -129,7 +122,7 @@ def _get_subklasses(
         klass_def.properties.append(
             KlassPropertySignatureInfo(
                 type_info=prop_type_info,
-                required=prop_name in klass_def.schema_def.get("required", []),
+                required=prop_name in required,
                 alias=prop_name,
                 appears_in={f"{klass_def.dir_name}.{klass_def.full_name}"},
             )

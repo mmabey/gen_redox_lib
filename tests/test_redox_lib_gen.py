@@ -1,67 +1,46 @@
-# -*- coding: utf-8 -*-
 from pathlib import Path
-from subprocess import CalledProcessError, run
 
 import pytest
+from click.testing import CliRunner
 from tomlkit import parse
 
 import gen_redox_lib
-from gen_redox_lib.utils import temp_chdir
+from gen_redox_lib.generate import main as generate_main
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
-def test_version():
+def test_version() -> None:
     assert gen_redox_lib.__version__ == "1.1.0"
 
 
-def test_pyproject_version():
-    this_dir = Path(__file__).parent
-    with open(this_dir / ".." / "pyproject.toml") as pyproject_file:
-        pyproject = parse(pyproject_file.read())
-
-    fail_msg = (
-        "The version in the pyproject.toml file differs from the version in the code."
+def test_pyproject_version() -> None:
+    pyproject = parse((REPO_ROOT / "pyproject.toml").read_text())
+    assert pyproject["project"]["version"] == gen_redox_lib.__version__, (
+        "pyproject.toml [project].version differs from gen_redox_lib.__version__"
     )
-
-    assert pyproject["tool"]["poetry"]["version"] == gen_redox_lib.__version__, fail_msg
 
 
 @pytest.fixture
-def fresh_lib_generation(tmp_path) -> Path:
-    tmp_dir = Path(tmp_path).resolve() / "redox"
-    tmp_dir.mkdir()
-
-    # Change the working directory to be where generate.py file is
-    with temp_chdir(Path(gen_redox_lib.__file__).parent):
-        cmd = ["python3", "generate.py", "--dst", str(tmp_dir), "--force-download"]
-        print(f"running command: `{' '.join(cmd)}`\n")
-        try:
-            call_result = run(cmd, check=True)
-        except CalledProcessError as err:
-            if err.returncode == 2:
-                print(
-                    "Generation of redox library failed due to issues downloading "
-                    "the schema. It's possible the problem may be corrected when run "
-                    "again, but for now there is no way to verify that any drift has "
-                    "been accounted for in the library."
-                )
-            raise
-
-    assert (
-        call_result.returncode == 0
-    ), f"Call to code generator failed with code {call_result.returncode}"
-    return tmp_dir
+def fresh_lib_generation(tmp_path: Path) -> Path:
+    """Generate the redox library from the vendored schema bundle."""
+    dst = tmp_path / "redox" / "redox"
+    dst.mkdir(parents=True)
+    result = CliRunner().invoke(generate_main, ["--dst", str(dst)], catch_exceptions=False)
+    assert result.exit_code == 0, result.output
+    return dst
 
 
-def test_compare_generated_with_existing(snapshot, fresh_lib_generation: Path):
+def test_compare_generated_with_existing(snapshot, fresh_lib_generation: Path) -> None:
     snapshot.snapshot_dir = Path(__file__).parent.resolve() / "snapshots"
-    tmp_dir = fresh_lib_generation
-    for f in tmp_dir.glob("**/*.py"):
+    generated_root = fresh_lib_generation
+    for f in sorted(generated_root.glob("**/*.py")):
         try:
             snapshot.assert_match(
                 value=f.read_text(),
-                snapshot_name=snapshot.snapshot_dir / f.relative_to(tmp_dir),
+                snapshot_name=snapshot.snapshot_dir / f.relative_to(generated_root),
             )
         except AssertionError:
-            print("Snapshot Mismatch... Do you need to run `pytest --snapshot-update`?")
+            print("Snapshot mismatch - run `./update_snapshots.sh` if this is expected.")
             print(f"FAILED: {f}")
             raise

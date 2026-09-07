@@ -1,0 +1,186 @@
+{
+  "Administrations": [
+    {
+      "AdministeringProvider": {
+        "Address": {
+          "City": "Madison",
+          "Country": "USA",
+          "County": "Dane",
+          "State": "WI",
+          "StreetAddress": "123 Main St.",
+          "ZIP": "53703"
+        },
+        "Credentials": [
+          "MD"
+        ],
+        "EmailAddresses": [],
+        "FirstName": "Pat",
+        "ID": "4356789876",
+        "IDType": "NPI",
+        "LastName": "Granite",
+        "Location": {
+          "DepartmentIdentifiers": [],
+          "FacilityIdentifiers": []
+        },
+        "NPI": "4356789876",
+        "PhoneNumber": {
+          "Office": "+16085551234"
+        }
+      },
+      "Medication": {
+        "Components": [],
+        "Dose": {
+          "Quantity": 4.0,
+          "Units": "mg"
+        },
+        "Indications": [],
+        "Order": {
+          "ID": "d18e949c-2dc6-43fc-b168-b76ccb5abd6c"
+        },
+        "Product": {
+          "AltCodes": [],
+          "Code": "104894",
+          "CodeSystem": "2.16.840.1.113883.6.88",
+          "CodeSystemName": "RxNorm",
+          "Name": "Ondansetron 4 Mg Po Tbdp"
+        },
+        "Rate": {},
+        "Route": {
+          "AltCodes": [],
+          "Code": "C38288",
+          "CodeSystem": "2.16.840.1.113883.3.26.1.1",
+          "CodeSystemName": "NCI Thesaurus",
+          "Name": "Oral"
+        }
+      },
+      "OrderedBy": {
+        "Address": {
+          "City": "Madison",
+          "Country": "USA",
+          "County": "Dane",
+          "State": "WI",
+          "StreetAddress": "123 Main St.",
+          "ZIP": "53703"
+        },
+        "Credentials": [
+          "MD"
+        ],
+        "EmailAddresses": [],
+        "FirstName": "Pat",
+        "ID": "4356789876",
+        "IDType": "NPI",
+        "LastName": "Granite",
+        "Location": {
+          "DepartmentIdentifiers": [],
+          "FacilityIdentifiers": []
+        },
+        "PhoneNumber": {
+          "Office": "+16085551234"
+        }
+      },
+      "StartDate": "2023-02-27T22:09:03.582Z",
+      "Status": "Complete",
+      "VerifiedBy": {
+        "Address": {},
+        "Credentials": [],
+        "EmailAddresses": [],
+        "Location": {
+          "DepartmentIdentifiers": [],
+          "FacilityIdentifiers": []
+        },
+        "PhoneNumber": {}
+      }
+    }
+  ],
+  "Meta": {
+    "DataModel": "Medications",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "Administration",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  },
+  "Patient": {
+    "Demographics": {
+      "Address": {
+        "City": "Monroe",
+        "Country": "US",
+        "County": "Green",
+        "State": "WI",
+        "StreetAddress": "4762 Hickory Street",
+        "ZIP": "53566"
+      },
+      "Citizenship": [],
+      "DOB": "2008-01-06",
+      "EmailAddresses": [],
+      "FirstName": "Timothy",
+      "Language": "en",
+      "LastName": "Bixby",
+      "MaritalStatus": "Single",
+      "MiddleName": "Paul",
+      "PhoneNumber": {
+        "Home": "+18088675301"
+      },
+      "Race": "White",
+      "SSN": "101-01-0001",
+      "Sex": "Male"
+    },
+    "Identifiers": [
+      {
+        "ID": "0000000001",
+        "IDType": "MR"
+      },
+      {
+        "ID": "e167267c-16c9-4fe3-96ae-9cff5703e90a",
+        "IDType": "EHRID"
+      },
+      {
+        "ID": "a1d4ee8aba494ca",
+        "IDType": "NIST"
+      }
+    ],
+    "Notes": []
+  },
+  "Visit": {
+    "AttendingProvider": {
+      "Address": {},
+      "Credentials": [],
+      "EmailAddresses": [],
+      "Location": {
+        "DepartmentIdentifiers": [],
+        "FacilityIdentifiers": []
+      },
+      "PhoneNumber": {}
+    },
+    "Location": {
+      "DepartmentIdentifiers": [],
+      "FacilityIdentifiers": []
+    },
+    "ReferringProvider": {
+      "Address": {},
+      "Credentials": [],
+      "EmailAddresses": [],
+      "Location": {
+        "DepartmentIdentifiers": [],
+        "FacilityIdentifiers": []
+      },
+      "PhoneNumber": {}
+    },
+    "VisitDateTime": "2023-02-27T22:09:04.446Z",
+    "VisitNumber": "1234"
+  }
+}

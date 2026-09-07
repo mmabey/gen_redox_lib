@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from pathlib import Path
 
 import click
-from gen_helpers import download_and_extract, format_python_files, process_files, rmrf
-from requests import HTTPError
 
-SPEC_URL = "https://developer.redoxengine.com/data-models/schemas.zip"
-PARENT_DIR = Path(__file__).parent.resolve()
-CACHE_DIR = PARENT_DIR / "cache"
-LIB_DEST_DIR = (PARENT_DIR / ".." / ".." / "redox" / "redox").resolve()
-TEMPLATE_DIR = PARENT_DIR / "templates"
+from gen_redox_lib.gen_helpers import (
+    download_and_extract,
+    format_python_files,
+    process_files,
+    rmrf,
+)
+from gen_redox_lib.gen_helpers.get_spec import DEFAULT_SPEC_URL
+
+PACKAGE_DIR = Path(__file__).parent.resolve()
+CACHE_DIR = PACKAGE_DIR / "cache"
+TEMPLATE_DIR = PACKAGE_DIR / "templates"
+VENDOR_DIR = PACKAGE_DIR / "vendor"
+# gen_redox_lib and redox are checked out as siblings; generated code lands in
+# the redox package directory.
+LIB_DEST_DIR = (PACKAGE_DIR / ".." / ".." / "redox" / "redox").resolve()
+
+# Hand-maintained files that live in the redox repo and must survive a regen.
+# abstract_base.py and factory.py are copied in fresh from vendor/ each run.
+_KEEP_ON_WIPE = {Path("README.md"), Path("__init__.py"), Path("py.typed")}
+_VENDORED_INTO_PACKAGE = ("abstract_base.py", "factory.py", "field_types.py", "py.typed")
 
 
 @click.command()
@@ -19,72 +31,86 @@ TEMPLATE_DIR = PARENT_DIR / "templates"
     "-d",
     default=LIB_DEST_DIR,
     show_default=True,
-    type=click.Path(
-        file_okay=False, dir_okay=True, writable=True, resolve_path=True, path_type=Path
-    ),
+    type=click.Path(file_okay=False, dir_okay=True, writable=True, resolve_path=True, path_type=Path),
     help=(
-        "The directory where the redox library will be generated. NOTE: If the "
-        "provided path already exists, it will be deleted (along with its contents) "
-        "before the library is generated or saved there."
+        "Directory the redox library is generated into. Its contents (except a "
+        "few hand-maintained files) are deleted first."
     ),
 )
 @click.option(
     "--cache-dir",
     "-c",
     default=CACHE_DIR,
-    type=click.Path(
-        file_okay=False, dir_okay=True, writable=True, resolve_path=True, path_type=Path
-    ),
-    help=(
-        "The directory where the Redox schema will downloaded and extracted. Any files "
-        "in the directory will be overwritten."
-    ),
+    type=click.Path(file_okay=False, dir_okay=True, writable=True, resolve_path=True, path_type=Path),
+    help="Scratch directory the schema bundle is unpacked into.",
 )
-@click.option("--spec_url", default=SPEC_URL, show_default=True, type=click.STRING)
+@click.option("--spec-url", default=DEFAULT_SPEC_URL, show_default=True, type=str)
 @click.option(
     "--force-download",
     "-f",
     is_flag=True,
-    help=(
-        "Force a fresh download of the Redox specification zip file. If not specified "
-        "and the zip file has already been downloaded, the local copy will be used "
-        "instead of downloading a fresh version of the spec."
-    ),
+    help="Fetch a fresh schema bundle from --spec-url and refresh the vendored copy.",
 )
-def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool):
-    """Generate Pydantic models from the Redox JSON specs."""
+def main(dst: Path, cache_dir: Path, spec_url: str, force_download: bool) -> None:
+    """Generate Pydantic models from the Redox JSON schema."""
+    extracted = download_and_extract(cache_dir, force_download=force_download, spec_url=spec_url)
 
-    cache_dir.mkdir(exist_ok=True)
-    try:
-        extracted_folder = download_and_extract(spec_url, cache_dir, force_download)
-    except HTTPError:
-        click.echo(
-            "Unable to download the spec from Redox. This happens somewhat frequently, "
-            "so just try again in a minute or so."
-        )
-        exit(2)
-
-    # Clear the destination dir (minus a few things)
-    rmrf(
-        dst,
-        exclude={
-            Path("README.md"),
-            Path("__init__.py"),
-            Path("abstract_base.py"),
-            Path("factory.py"),
-            Path("tests"),
-        },
-    )
-    dst.mkdir(exist_ok=True)
-    (dst / "__init__.py").touch()
+    rmrf(dst, exclude=_KEEP_ON_WIPE)
+    dst.mkdir(parents=True, exist_ok=True)
 
     process_files(
-        extracted_folder=extracted_folder,
+        extracted_folder=extracted,
         dst=dst,
-        directories=[d.name for d in extracted_folder.iterdir() if d.is_dir()],
+        directories=sorted(d.name for d in extracted.iterdir() if d.is_dir()),
         jinja_template_dir=TEMPLATE_DIR,
     )
+
+    for name in _VENDORED_INTO_PACKAGE:
+        src = VENDOR_DIR / name
+        if src.exists():
+            (dst / name).write_bytes(src.read_bytes())
+
+    _copy_tree(VENDOR_DIR / "tests", dst.parent / "tests")
+    _write_version_files(dst)
+
     format_python_files(dst)
+
+
+def _resolve_version(repo_root: Path) -> str:
+    """Read the redox package version from its pyproject, defaulting to 0.0.0."""
+    pyproject = repo_root / "pyproject.toml"
+    if pyproject.exists():
+        for line in pyproject.read_text().splitlines():
+            stripped = line.strip()
+            if stripped.startswith("version") and "=" in stripped:
+                return stripped.split("=", 1)[1].strip().strip('"').strip("'")
+    return "0.0.0"
+
+
+def _write_version_files(dst: Path) -> None:
+    version = _resolve_version(dst.parent)
+    (dst / "__init__.py").write_text(
+        f'# ----  AUTO-GENERATED BY gen_redox_lib. DO NOT MODIFY MANUALLY!!  ---- #\n__version__ = "{version}"\n'
+    )
+    (dst.parent / "tests").mkdir(parents=True, exist_ok=True)
+    (dst.parent / "tests" / "test_version.py").write_text(
+        "# ----  AUTO-GENERATED BY gen_redox_lib. DO NOT MODIFY MANUALLY!!  ---- #\n"
+        "from redox import __version__\n\n\n"
+        "def test_version():\n"
+        f'    assert __version__ == "{version}"\n'
+    )
+
+
+def _copy_tree(src: Path, dst: Path) -> None:
+    if not src.exists():
+        return
+    for item in src.rglob("*"):
+        target = dst / item.relative_to(src)
+        if item.is_dir():
+            target.mkdir(parents=True, exist_ok=True)
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(item.read_bytes())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,166 @@
+{
+  "Meta": {
+    "DataModel": "Results",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "QueryResponse",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  },
+  "Orders": [
+    {
+      "CollectionDateTime": "2015-05-06T06:00:58.872Z",
+      "CompletionDateTime": "2015-05-06T06:00:58.872Z",
+      "ID": "157968300",
+      "Notes": [],
+      "Patient": {
+        "Identifiers": [
+          {
+            "ID": "000000001",
+            "IDType": "MRN"
+          }
+        ]
+      },
+      "Priority": "Stat",
+      "Procedure": {
+        "Code": "49086-2",
+        "Description": "First trimester maternal screen with nuchal translucency panel"
+      },
+      "Provider": {
+        "Address": {},
+        "Credentials": [],
+        "EmailAddresses": [],
+        "FirstName": "Pat",
+        "LastName": "Granite",
+        "Location": {
+          "DepartmentIdentifiers": [],
+          "FacilityIdentifiers": []
+        },
+        "NPI": "4356789876",
+        "PhoneNumber": {}
+      },
+      "ResponseFlag": "Associated Segments",
+      "ResultCopyProviders": [],
+      "Results": [
+        {
+          "AbnormalFlag": "Very Abnormal",
+          "Code": "TEST0001",
+          "Description": "Cystic Fibrosis",
+          "Notes": [
+            "This individual is a carrier for Cystic Fibrosis."
+          ],
+          "ObservationMethod": {},
+          "Performer": {
+            "Address": {},
+            "Credentials": [
+              "MD"
+            ],
+            "EmailAddresses": [],
+            "FirstName": "Bob",
+            "LastName": "Smith",
+            "Location": {
+              "DepartmentIdentifiers": [],
+              "FacilityIdentifiers": []
+            },
+            "PhoneNumber": {}
+          },
+          "PrimaryResultsInterpreter": {
+            "Address": {},
+            "Credentials": [],
+            "EmailAddresses": [],
+            "Location": {
+              "DepartmentIdentifiers": [],
+              "FacilityIdentifiers": []
+            },
+            "PhoneNumber": {}
+          },
+          "Producer": {
+            "Address": {
+              "City": "Madison",
+              "Country": "USA",
+              "County": "Dane",
+              "State": "WI",
+              "StreetAddress": "111 W. Fairchild",
+              "ZIP": "53703"
+            },
+            "ID": "RL001",
+            "Name": "Redox Lab WI"
+          },
+          "ReferenceRange": {},
+          "Specimen": {},
+          "Status": "Final",
+          "Value": "Positive Result",
+          "ValueType": "String"
+        },
+        {
+          "AbnormalFlag": "Normal",
+          "Code": "TEST0004",
+          "Description": "Primary Carnitine Deficiency",
+          "Notes": [],
+          "ObservationMethod": {},
+          "Performer": {
+            "Address": {},
+            "Credentials": [
+              "MD"
+            ],
+            "EmailAddresses": [],
+            "FirstName": "Bob",
+            "LastName": "Smith",
+            "Location": {
+              "DepartmentIdentifiers": [],
+              "FacilityIdentifiers": []
+            },
+            "PhoneNumber": {}
+          },
+          "PrimaryResultsInterpreter": {
+            "Address": {},
+            "Credentials": [],
+            "EmailAddresses": [],
+            "Location": {
+              "DepartmentIdentifiers": [],
+              "FacilityIdentifiers": []
+            },
+            "PhoneNumber": {}
+          },
+          "Producer": {
+            "Address": {
+              "City": "Madison",
+              "Country": "USA",
+              "County": "Dane",
+              "State": "WI",
+              "StreetAddress": "111 W. Fairchild",
+              "ZIP": "53703"
+            },
+            "ID": "RL001",
+            "Name": "Redox Lab WI"
+          },
+          "ReferenceRange": {},
+          "Specimen": {},
+          "Status": "Final",
+          "Value": "Negative Result",
+          "ValueType": "String"
+        }
+      ],
+      "ResultsStatus": "Final",
+      "Status": "Resulted",
+      "TransactionDateTime": "2015-05-06T06:00:58.872Z",
+      "Visit": {
+        "VisitNumber": "1234567"
+      }
+    }
+  ]
+}

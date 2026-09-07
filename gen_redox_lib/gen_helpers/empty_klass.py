@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-__all__ = ["EMPTY_KLASS_PROPERTY", "EMPTY_KLASS_DEF"]
+__all__ = ["EMPTY_KLASS_DEF", "EMPTY_KLASS_PROPERTY"]
 
 
 class EmptyKlassProperty:
