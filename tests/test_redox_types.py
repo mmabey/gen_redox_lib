@@ -166,63 +166,63 @@ def test_deconstructed_merge() -> None:
 
     # Native | Native
     assert str(str1 | str1) == "str"
-    assert str(str1 | bool1) == "Union[bool, str]"
+    assert str(str1 | bool1) == "bool | str"
 
     # Native | List
-    assert str(str1 | list1) == "Union[List[str], str]"
+    assert str(str1 | list1) == "list[str] | str"
 
     # Native | Union
-    assert str(str1 | str_none1) == "Union[str, None]"
+    assert str(str1 | str_none1) == "str | None"
 
     # Native | Schema
-    assert str(str1 | blah1) == 'Union["Blah", str]'
+    assert str(str1 | blah1) == "Blah | str"
 
     #
     # LIST
     #
 
     # List | Native
-    assert str(list1 | str1) == "Union[List[str], str]"
+    assert str(list1 | str1) == "list[str] | str"
 
     # List | List
-    assert str(list1 | list2) == "Union[List[bool], List[str]]"
+    assert str(list1 | list2) == "list[bool] | list[str]"
 
     # List | Union
-    assert str(list1 | str_none1) == "Union[List[str], str, None]"
+    assert str(list1 | str_none1) == "list[str] | str | None"
 
     # List | Schema
-    assert str(list1 | blah1) == 'Union["Blah", List[str]]'
+    assert str(list1 | blah1) == "Blah | list[str]"
 
     #
     # UNION
     #
 
     # Union | Native
-    assert str(str_none1 | str1) == "Union[str, None]"
+    assert str(str_none1 | str1) == "str | None"
 
     # Union | List
-    assert str(str_none1 | list1) == "Union[List[str], str, None]"
+    assert str(str_none1 | list1) == "list[str] | str | None"
 
     # Union | Union
-    assert str(str_none1 | str_none1) == "Union[str, None]"
-    assert str(str_bool1 | str_none1) == "Union[bool, str, None]"
+    assert str(str_none1 | str_none1) == "str | None"
+    assert str(str_bool1 | str_none1) == "bool | str | None"
 
     # Union | Schema
-    assert str(str_bool1 | blah1) == 'Union["Blah", bool, str]'
+    assert str(str_bool1 | blah1) == "Blah | bool | str"
 
     #
     # SCHEMA
     #
 
     # Schema | Native
-    assert str(blah1 | str1) == 'Union["Blah", str]'
+    assert str(blah1 | str1) == "Blah | str"
 
     # Schema | List
-    assert str(blah1 | list1) == 'Union["Blah", List[str]]'
+    assert str(blah1 | list1) == "Blah | list[str]"
 
     # Schema | Union
-    assert str(blah1 | str_bool1) == 'Union["Blah", bool, str]'
+    assert str(blah1 | str_bool1) == "Blah | bool | str"
 
     # Schema | Schema
     assert str(blah1 | blah1) == str(blah1)
-    assert str(blah1 | halb1) == 'Union["Blah", "Halb"]'
+    assert str(blah1 | halb1) == "Blah | Halb"

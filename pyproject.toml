@@ -44,6 +44,7 @@ dev = [
     "pytest-snapshot>=0.9",
     "pre-commit>=3.0",
     "ruff>=0.6",
+    "ty>=0.0.70",
     "coveralls>=3.0.1",
     "tomlkit>=0.13",
 ]
@@ -86,13 +87,12 @@ extend-select = [
     "S",
     "SIM",
     "T100",
-    "TC",
     "TID",
     "UP",
     "W",
 ]
-# ANN/EM/TRY/PLR are dropped: this is internal codegen tooling, not a public API,
-# and the generated *output* (which does ship) is held to the full rule set via
+# ANN/EM/TRY/PLR/TC are dropped: this is internal codegen tooling, not a public
+# API, and the generated *output* (which does ship) is held to the full rule set via
 # gen_redox_lib/vendor/ruff.toml.
 # Rules ruff's own docs list as conflicting with the formatter:
 # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
@@ -129,6 +129,11 @@ known-third-party = ["pytest"]
 
 [tool.coverage.run]
 source = ["gen_redox_lib"]
+
+[tool.ty.src]
+# vendor/ is redox-package source (imports `redox.*`, `pydantic`), checked in
+# that repo; snapshots/cache are generator output.
+exclude = ["gen_redox_lib/vendor", "gen_redox_lib/cache", "tests/snapshots"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

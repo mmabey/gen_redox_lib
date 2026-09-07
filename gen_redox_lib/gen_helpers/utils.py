@@ -60,6 +60,9 @@ def get_property_type(type_str: str | list[str], klass_def: KlassDefinition | No
         return _get_sub_object_prop_type([get_property_type(p) for p in type_str])
 
     if type_str == "object":
+        if klass_def is None:
+            msg = "An 'object' property needs its KlassDefinition"
+            raise ValueError(msg)
         return PropertyTypeInfo(
             _raw_type=DeconstructedType(SCHEMA, {klass_def.full_name}),
             _raw_type_simplified=DeconstructedType(SCHEMA, {klass_def.klass_name}),
@@ -91,7 +94,7 @@ def _get_sub_object_prop_type(type_infos: list[PropertyTypeInfo]) -> PropertyTyp
         raise ValueError(msg)
 
     # Combine all the imports and relative imports
-    imports = reduce(add, (t.imports for t in type_infos), ImportMapping({"typing": {"Union"}}))
+    imports = reduce(add, (t.imports for t in type_infos), ImportMapping())
     relative_imports = reduce(add, (t.relative_imports for t in type_infos))
 
     # Make sure the list isn't just a set of None values
@@ -123,16 +126,14 @@ def _get_array_prop_type(
     chance this may change in the future.
     """
 
-    schema_def = getattr(klass_def, "schema_def", None)
-    if schema_def and schema_def.get("type") == "object":
+    schema_def = klass_def.schema_def if klass_def is not None else None
+    if klass_def is not None and schema_def and schema_def.get("type") == "object":
         return PropertyTypeInfo(
             _raw_type=DeconstructedType(LIST, {DeconstructedType(SCHEMA, {klass_def.full_name})}),
             _raw_type_simplified=DeconstructedType(LIST, {DeconstructedType(SCHEMA, {klass_def.klass_name})}),
-            imports=ImportMapping({"typing": {"List"}}),
         )
 
     return PropertyTypeInfo(
         _raw_type=DeconstructedType(LIST, {DeconstructedType(NATIVE, {"str"})}),
         _raw_type_simplified=DeconstructedType(LIST, {DeconstructedType(NATIVE, {"str"})}),
-        imports=ImportMapping({"typing": {"List"}}),
     )

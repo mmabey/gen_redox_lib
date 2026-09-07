@@ -74,11 +74,15 @@ def process_files(
     click.echo(f"redox library files generated at {dst}")
 
 
+def _noop(_: str) -> None:
+    pass
+
+
 def write_py_files(
     lib_dest_dir: Path,
     jinja_env: Environment,
     template_info_generator: Iterator[TemplateInfo],
-    progressbar_updater: Callable | None = lambda _: None,
+    progressbar_updater: Callable[[str], None] = _noop,
 ) -> None:
     """Write the generated files for a single directory.
 

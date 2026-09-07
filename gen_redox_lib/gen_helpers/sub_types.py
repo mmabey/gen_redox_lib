@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 from collections.abc import Iterable
 from copy import copy
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Union
 
 
 class KlassPropertyType(Enum):
@@ -41,12 +42,11 @@ class DeconstructedType:
 
     >>> tmp_type1 = DeconstructedType(KlassPropertyType.LIST, {"MySchemaType"})
 
-    If ``tmp_type`` were to be converted to a string, the code would be forced
-    to assume that ``"MySchemaType"`` refers to a native type (which it clearly
-    isn't) which will lead to an incorrect rendering of the type::
+    If ``tmp_type`` were converted to a string it would assume ``"MySchemaType"``
+    is a native type, giving the wrong rendering::
 
     >>> str(tmp_type1)
-    "List[MySchemaType]"
+    "list[MySchemaType]"
 
     The correct way to do this is instead:
 
@@ -55,11 +55,14 @@ class DeconstructedType:
     ...     {DeconstructedType(KlassPropertyType.SCHEMA, {"MySchemaType"})}
     ... )
     >>> str(tmp_type2)
-    'List["MySchemaType"]'
+    'list[MySchemaType]'
+
+    Generated modules carry ``from __future__ import annotations``, so forward
+    references to schema types don't need quoting.
     """
 
     property_type: KlassPropertyType
-    types: set[Union[str, "DeconstructedType"]] = field(default_factory=set)
+    types: set[str | DeconstructedType] = field(default_factory=set)
     _schema_types_prefix: str = ""
 
     @property
@@ -80,28 +83,25 @@ class DeconstructedType:
             raise IndexError(msg)
 
     def __str__(self) -> str:
-        """Properly converts the object to a string.
+        """Render the type as modern (PEP 585/604) annotation source.
 
-        The two key features of this method are that it (1) recursively calls
-        ``__str__()`` for any embedded ``DeconstructedType`` objects and (2) it
-        correctly quotes any ``SCHEMA`` values. The latter is critical for
-        handling forward references (references to types that are defined later
-        in a Python file), especially for Python 3.6 which doesn't have as
-        robust support for type hints and dataclasses.
+        Recurses into embedded ``DeconstructedType`` objects. ``SCHEMA`` values
+        are emitted bare (optionally module-prefixed); the generated modules use
+        ``from __future__ import annotations`` so forward references resolve at
+        ``model_rebuild()`` time without quoting.
         """
         self._validate_length()
         if self.property_type is KlassPropertyType.NATIVE:
             return str(next(iter(self.types)))
 
         if self.property_type is KlassPropertyType.LIST:
-            return f"List[{', '.join(_sort_type_names([str(t) for t in self.types]))}]"
+            return f"list[{', '.join(_sort_type_names([str(t) for t in self.types]))}]"
 
         if self.property_type is KlassPropertyType.UNION:
-            return f"Union[{', '.join(_sort_type_names([str(t) for t in self.types]))}]"
+            return " | ".join(_sort_type_names([str(t) for t in self.types]))
 
         if self.property_type is KlassPropertyType.SCHEMA:
-            schema_type = next(iter(self.types))
-            return f"{self.schema_prefix}{schema_type}" if self.schema_prefix else f'"{schema_type}"'
+            return f"{self.schema_prefix}{next(iter(self.types))}"
 
         msg = f"Unexpected property type: {self.property_type}"
         raise ValueError(msg)
@@ -109,22 +109,17 @@ class DeconstructedType:
     def __copy__(self):
         return DeconstructedType(self.property_type, copy(self.types))
 
-    def __eq__(self, other: "DeconstructedType"):
+    def __eq__(self, other: object) -> bool:
         """Allows a ``set`` to determine if it's already present (de-dupe)."""
-        if other is None:
-            return False
+        if not isinstance(other, DeconstructedType):
+            return NotImplemented
         return self.property_type == other.property_type and self.types == other.types
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Allows the class to be added to a ``set``."""
-        return hash(
-            (
-                self.property_type,
-                tuple(_sort_type_names(self.types)),
-            )
-        )
+        return hash((self.property_type, tuple(_sort_type_names([str(t) for t in self.types]))))
 
-    def __or__(self, other: "DeconstructedType") -> "DeconstructedType":
+    def __or__(self, other: DeconstructedType) -> DeconstructedType:
         """Return the union of two ``DeconstructedType`` objects."""
         # The implementation is split among four methods to simplify the logic for
         # performing the union. Methods are written for each possibility for the value
@@ -153,7 +148,7 @@ class DeconstructedType:
 
         return NotImplemented
 
-    def __or_native(self, other: "DeconstructedType") -> "DeconstructedType":
+    def __or_native(self, other: DeconstructedType) -> DeconstructedType:
         if other.property_type is KlassPropertyType.NATIVE:
             if self.types == other.types:
                 # The types are the same native type
@@ -178,7 +173,7 @@ class DeconstructedType:
             return DeconstructedType(KlassPropertyType.UNION, {self} | {other})
         return None
 
-    def __or_list(self, other: "DeconstructedType") -> "DeconstructedType":
+    def __or_list(self, other: DeconstructedType) -> DeconstructedType:
         if other.property_type is KlassPropertyType.NATIVE:
             # This is an operation defined earlier, just reversed. Reuse it.
             return other | self
@@ -202,7 +197,7 @@ class DeconstructedType:
             return DeconstructedType(KlassPropertyType.UNION, {self, other})
         return None
 
-    def __or_union(self, other: "DeconstructedType") -> "DeconstructedType":
+    def __or_union(self, other: DeconstructedType) -> DeconstructedType:
         if other.property_type in (
             KlassPropertyType.NATIVE,
             KlassPropertyType.LIST,
@@ -219,7 +214,7 @@ class DeconstructedType:
             return DeconstructedType(KlassPropertyType.UNION, self.types | {other})
         return None
 
-    def __or_schema(self, other: "DeconstructedType") -> "DeconstructedType":
+    def __or_schema(self, other: DeconstructedType) -> DeconstructedType:
         if other.property_type in (
             KlassPropertyType.NATIVE,
             KlassPropertyType.LIST,
@@ -238,11 +233,12 @@ class DeconstructedType:
 
 
 def _sort_type_names(types: Iterable[str]) -> list[str]:
-    """Sort type names, but put None at the end."""
+    """Sort type names alphabetically, but keep ``None`` last."""
     if isinstance(types, str):
-        raise TypeError
-    if "None" not in types:
-        return sorted(types)
-    types = list(types)
-    types.remove("None")
-    return [*sorted(types), "None"]
+        msg = "expected an iterable of type-name strings, got a single string"
+        raise TypeError(msg)
+    names = list(types)
+    if "None" not in names:
+        return sorted(names)
+    names.remove("None")
+    return [*sorted(names), "None"]

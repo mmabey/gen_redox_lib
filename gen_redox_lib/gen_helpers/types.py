@@ -99,7 +99,7 @@ class PropertyTypeInfo:
             self._raw_type_simplified.schema_prefix = prefix
 
     def __or__(self, other: "PropertyTypeInfo"):
-        if None in (self._raw_type_simplified, other._raw_type_simplified):
+        if self._raw_type_simplified is None or other._raw_type_simplified is None:
             simplified = self._raw_type_simplified or other._raw_type_simplified
         else:
             simplified = self._raw_type_simplified | other._raw_type_simplified
@@ -200,19 +200,11 @@ class KlassPropertySignatureInfo:
             )
         )
 
-    def __eq__(self, other: "KlassPropertySignatureInfo"):
-        """Compare the property with another.
-
-        :param other: Another instance of ``KlassPropertySignatureInfo``.
-        :returns: ``True`` if ``name``, ``type``, ``type_class``,
-            ``type_simplified``, and ``required`` are all the same for both
-            objects.
-        """
-        return (
-            (self.alias == other.alias and self.type_info == other.type_info and self.required == other.required)
-            if isinstance(other, self.__class__)
-            else NotImplemented
-        )
+    def __eq__(self, other: object) -> bool:
+        """True if ``alias``, ``type_info`` and ``required`` all match."""
+        if not isinstance(other, KlassPropertySignatureInfo):
+            return NotImplemented
+        return self.alias == other.alias and self.type_info == other.type_info and self.required == other.required
 
     def __lt__(self, other: "KlassPropertySignatureInfo"):
         """Compare the property with another.
@@ -258,7 +250,7 @@ class KlassDefinition:
     properties: list[KlassPropertySignatureInfo] = field(default_factory=list)
     has_forward_refs: bool = False  # Is True if any properties are of type SCHEMA
     is_event_type: bool = False
-    _prop_map: defaultdict[str, KlassPropertySignatureInfo | EMPTY_KLASS_PROPERTY] = None
+    _prop_map: "defaultdict[str, KlassPropertySignatureInfo] | None" = None
 
     @property
     def full_name(self):
@@ -335,21 +327,14 @@ class KlassDefinition:
     def __hash__(self):
         return hash((self.full_name, self.is_event_type, set(self.properties)))
 
-    def __eq__(self, other: "KlassDefinition"):
-        """Compare the klass with another klass.
-
-        :param other: Another instance of ``KlassDefinition``.
-        :returns: ``True`` if ``full_name``, ``is_event_type``, and
-            ``properties`` are equal for both objects.
-        """
+    def __eq__(self, other: object) -> bool:
+        """True if ``full_name``, ``is_event_type`` and ``properties`` all match."""
+        if not isinstance(other, KlassDefinition):
+            return NotImplemented
         return (
-            (
-                self.full_name == other.full_name
-                and self.is_event_type == self.is_event_type
-                and set(self.properties) == set(other.properties)
-            )
-            if isinstance(other, self.__class__)
-            else NotImplemented
+            self.full_name == other.full_name
+            and self.is_event_type == other.is_event_type
+            and set(self.properties) == set(other.properties)
         )
 
     def __lt__(self, other: "KlassDefinition"):

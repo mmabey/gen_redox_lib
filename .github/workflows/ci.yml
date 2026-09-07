@@ -23,6 +23,7 @@ jobs:
       - run: uv sync --locked
       - run: uv run ruff check --force-exclude
       - run: uv run ruff format --check --force-exclude
+      - run: uv run ty check
 
   test:
     runs-on: ubuntu-latest
