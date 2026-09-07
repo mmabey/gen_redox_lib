@@ -44,7 +44,6 @@ dev = [
     "pytest-snapshot>=0.9",
     "pre-commit>=3.0",
     "ruff>=0.6",
-    "ty>=0.0.70",
     "coveralls>=3.0.1",
     "tomlkit>=0.13",
 ]
@@ -130,9 +129,6 @@ known-third-party = ["pytest"]
 
 [tool.coverage.run]
 source = ["gen_redox_lib"]
-
-[tool.ty.src]
-exclude = ["tests/snapshots", "gen_redox_lib/vendor", "gen_redox_lib/cache"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

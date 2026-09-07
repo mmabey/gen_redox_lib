@@ -1,9 +1,11 @@
-exclude: >
+# vendor/ is linted under the redox repo's own ruff config during generation,
+# not this project's - keep pre-commit out of it entirely.
+exclude: |
   (?x)(
-    \.egg-info|
-    tests/snapshots|
-    gen_redox_lib/vendor
-  )$
+    \.egg-info/|
+    ^tests/snapshots/|
+    ^gen_redox_lib/vendor/
+  )
 repos:
 # Local (not astral-sh/ruff-pre-commit): shelling out to `uv run ruff` keeps
 # exactly one ruff version in play (the one uv.lock resolves), instead of the
