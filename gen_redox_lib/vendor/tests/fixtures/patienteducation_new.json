@@ -1,0 +1,183 @@
+{
+  "Education": [
+    {
+      "ActionStatus": "Assign",
+      "Assignments": [
+        {
+          "ActionStatus": "Assign",
+          "Assignees": [
+            {
+              "ContentType": "Video",
+              "Learner": "Patient",
+              "Notes": [],
+              "Readiness": "Eager"
+            }
+          ],
+          "Code": "DN-PREG-01A",
+          "Codeset": "HCOPATED",
+          "CreatedDateTime": "2023-02-27T22:09:03.557Z",
+          "Description": "Diet and Nutrition in Pregnancy - Prenatal Vitamins",
+          "InstanceID": "87300586",
+          "Status": "Active",
+          "Topic": {
+            "Code": "DN-PREG-01",
+            "Codeset": "HCOPATED",
+            "Description": "Diet and Nutrition in Pregnancy"
+          }
+        }
+      ],
+      "CreatedDateTime": "2023-02-27T22:09:04.651Z",
+      "InstanceID": "20898465",
+      "Status": "Active",
+      "Subject": {
+        "Code": "DN-01",
+        "Description": "Diet and Nutrition"
+      }
+    }
+  ],
+  "Meta": {
+    "DataModel": "PatientEducation",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "New",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  },
+  "Patient": {
+    "Demographics": {
+      "Address": {
+        "City": "Chaing Mai",
+        "Country": "Thailand",
+        "County": "Amphoe Mueang Chiang Mai",
+        "State": "Chang Wat Chang Mai",
+        "StreetAddress": "Suan Dok Soi 6/3",
+        "ZIP": "50200"
+      },
+      "Citizenship": [
+        "US",
+        "TH",
+        "CR"
+      ],
+      "DOB": "1978-01-25",
+      "EmailAddresses": [
+        "[email\u00a0protected]"
+      ],
+      "FirstName": "Ase",
+      "IsDeceased": false,
+      "IsHispanic": false,
+      "Language": "en",
+      "LastName": "Nzesi",
+      "MaritalStatus": "Married",
+      "PhoneNumber": {
+        "Home": "+18088675310"
+      },
+      "Race": "Black",
+      "SSN": "111-22-3333",
+      "Sex": "Female"
+    },
+    "Identifiers": [
+      {
+        "ID": "994002",
+        "IDType": "MRN"
+      }
+    ],
+    "Notes": []
+  },
+  "Visit": {
+    "AccountNumber": "12945932",
+    "AttendingProvider": {
+      "Address": {
+        "City": "Chiang Mai",
+        "Country": "Thailand",
+        "County": "Amphoe Mueang Chiang Mai",
+        "State": "Chang Wat Chiang Mai",
+        "StreetAddress": "8 Bunrueang Rit Rd",
+        "ZIP": "50200"
+      },
+      "Credentials": [
+        "MD"
+      ],
+      "EmailAddresses": [],
+      "FirstName": "Krittiya",
+      "ID": "426986",
+      "IDType": "NCT",
+      "LastName": "Somaketarin",
+      "Location": {
+        "Department": "Obstetrics and Gynaecology",
+        "DepartmentIdentifiers": [],
+        "Facility": "Medical Center",
+        "FacilityIdentifiers": [],
+        "Room": "446",
+        "Type": "Department"
+      },
+      "PhoneNumber": {
+        "Office": "+6653920300"
+      }
+    },
+    "ConsultingProvider": {
+      "Address": {},
+      "Credentials": [],
+      "EmailAddresses": [],
+      "Location": {
+        "DepartmentIdentifiers": [],
+        "FacilityIdentifiers": []
+      },
+      "PhoneNumber": {}
+    },
+    "Location": {
+      "Bed": "A",
+      "Department": "MA",
+      "DepartmentIdentifiers": [],
+      "Facility": "Chiang Mai Ram Hospital",
+      "FacilityIdentifiers": [],
+      "Room": "13",
+      "Type": "Inpatient"
+    },
+    "PatientClass": "Inpatient",
+    "ReferringProvider": {
+      "Address": {
+        "City": "Lihue",
+        "Country": "United States",
+        "County": "Kauai",
+        "State": "HI",
+        "StreetAddress": "3-3420 Kuhio Hwy Suite B",
+        "ZIP": "96766"
+      },
+      "Credentials": [
+        "MD"
+      ],
+      "EmailAddresses": [],
+      "FirstName": "Carol",
+      "ID": "12981294",
+      "IDType": "NCT",
+      "LastName": "Fujiyoshi",
+      "Location": {
+        "Department": "Obstetrics and Gynecology",
+        "DepartmentIdentifiers": [],
+        "Facility": "Wilcox Medical Center",
+        "FacilityIdentifiers": [],
+        "Room": "32",
+        "Type": "Hawaii Pacific Health Hospital"
+      },
+      "PhoneNumber": {
+        "Office": "+18082451511"
+      }
+    },
+    "VisitDateTime": "2023-02-27T22:09:03.557Z",
+    "VisitNumber": "3498128348"
+  }
+}

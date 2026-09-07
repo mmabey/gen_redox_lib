@@ -1,0 +1,108 @@
+{
+  "Meta": {
+    "DataModel": "Order",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "QueryResponse",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  },
+  "Orders": [
+    {
+      "ClinicalInfo": [
+        {
+          "Code": "QUESTION001",
+          "Description": "Estimated Due Date",
+          "Notes": [],
+          "Value": "2015-10-05"
+        },
+        {
+          "Abbreviation": "W",
+          "Code": "QUESTION002",
+          "Description": "Ethnicity",
+          "Notes": [],
+          "Value": "White"
+        },
+        {
+          "Abbreviation": "sng",
+          "Code": "QUESTION010",
+          "Description": "Is this a twin pregnancy?",
+          "Notes": [],
+          "Value": "Singleton"
+        },
+        {
+          "Abbreviation": "lmp",
+          "Code": "QUESTION011",
+          "Description": "Dating Method",
+          "Notes": [],
+          "Value": "LMP"
+        }
+      ],
+      "CollectionDateTime": "2015-05-06T06:00:58.872Z",
+      "Diagnoses": [
+        {
+          "Code": "Z31.41",
+          "Codeset": "ICD-10",
+          "Name": "Encounter for fertility testing"
+        }
+      ],
+      "ID": "157968300",
+      "Notes": [],
+      "OrderingFacility": {
+        "Address": {}
+      },
+      "Patient": {
+        "Identifiers": [
+          {
+            "ID": "0000000001",
+            "IDType": "MR"
+          },
+          {
+            "ID": "e167267c-16c9-4fe3-96ae-9cff5703e90a",
+            "IDType": "EHRID"
+          },
+          {
+            "ID": "a1d4ee8aba494ca",
+            "IDType": "NIST"
+          }
+        ]
+      },
+      "Priority": "Stat",
+      "Procedure": {
+        "Code": "49086-2",
+        "Description": "First trimester maternal screen with nuchal translucency panel"
+      },
+      "Provider": {
+        "Address": {},
+        "Credentials": [],
+        "EmailAddresses": [],
+        "Location": {
+          "DepartmentIdentifiers": [],
+          "FacilityIdentifiers": []
+        },
+        "PhoneNumber": {}
+      },
+      "ResultCopyProviders": [],
+      "Specimen": {},
+      "Status": "New",
+      "TransactionDateTime": "2015-05-06T06:00:58.872Z",
+      "Visit": {
+        "VisitNumber": "1234"
+      }
+    }
+  ]
+}

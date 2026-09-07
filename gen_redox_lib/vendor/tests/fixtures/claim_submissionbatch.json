@@ -1,0 +1,303 @@
+{
+  "Meta": {
+    "DataModel": "Claim",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "SubmissionBatch",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  },
+  "Transactions": [
+    {
+      "ID": "000000001",
+      "Receiver": {
+        "Address": {},
+        "Identifiers": [
+          {
+            "ID": "123456",
+            "IDType": "TIN"
+          }
+        ],
+        "Name": "National Insurance Company of Redox",
+        "PhoneNumber": {}
+      },
+      "Submissions": [
+        {
+          "BillingProvider": {
+            "Address": {},
+            "Identifiers": [],
+            "PhoneNumber": {},
+            "Specialty": {}
+          },
+          "Subscribers": [
+            {
+              "Demographics": {
+                "Address": {
+                  "City": "Monroe",
+                  "Country": "US",
+                  "County": "Green",
+                  "State": "WI",
+                  "StreetAddress": "4762 Hickory Street",
+                  "ZIP": "53566"
+                },
+                "DOB": "2008-01-06",
+                "FirstName": "Timothy",
+                "LastName": "Bixby",
+                "MiddleName": "Paul",
+                "PhoneNumber": {
+                  "Home": "+18088675301"
+                },
+                "Sex": "Male"
+              },
+              "Identifiers": [
+                {
+                  "ID": "0000000001",
+                  "IDType": "MR"
+                },
+                {
+                  "ID": "e167267c-16c9-4fe3-96ae-9cff5703e90a",
+                  "IDType": "EHRID"
+                },
+                {
+                  "ID": "a1d4ee8aba494ca",
+                  "IDType": "NIST"
+                }
+              ],
+              "Insurance": {
+                "Company": {
+                  "Address": {
+                    "City": "Lexington",
+                    "Country": "US",
+                    "County": "Fayette",
+                    "State": "KY",
+                    "StreetAddress": "PO Box 14080",
+                    "ZIP": "40512-4079"
+                  },
+                  "ID": "60054",
+                  "Name": "aetna (60054 0131)",
+                  "PhoneNumber": "+18089541123"
+                },
+                "EffectiveDate": "2015-01-01",
+                "ExpirationDate": "2020-12-31",
+                "GroupName": "Accelerator Labs",
+                "GroupNumber": "847025-024-0009",
+                "Plan": {
+                  "ID": "31572",
+                  "IDType": "Payor ID",
+                  "Name": "HMO Deductible Plan"
+                },
+                "PolicyNumber": "9140860055"
+              },
+              "Patients": [
+                {
+                  "Claims": [
+                    {
+                      "AdditionalDates": [
+                        {
+                          "DateTime": "2016-10-08",
+                          "Type": "Service Period Start"
+                        },
+                        {
+                          "DateTime": "2016-10-11",
+                          "Type": "Service Period End"
+                        }
+                      ],
+                      "CopayAmount": "10.00",
+                      "Diagnoses": [
+                        {
+                          "Code": "M54.5",
+                          "Codeset": "ICD-10",
+                          "Type": "Admitting"
+                        },
+                        {
+                          "Code": "J45.909",
+                          "Codeset": "ICD-10"
+                        }
+                      ],
+                      "DiagnosisRelatedGroup": "551",
+                      "IsProviderSignatureOnFile": true,
+                      "IsReleaseOfInformationOnFile": true,
+                      "Providers": [
+                        {
+                          "Address": {
+                            "City": "Clayton",
+                            "Country": "USA",
+                            "County": "Saint Louis",
+                            "State": "MO",
+                            "StreetAddress": "500 First St.",
+                            "ZIP": "63105"
+                          },
+                          "Credentials": [
+                            "DO"
+                          ],
+                          "EmailAddresses": [],
+                          "FirstName": "John",
+                          "ID": "4236464757",
+                          "IDType": "NPI",
+                          "LastName": "Slate",
+                          "Location": {
+                            "DepartmentIdentifiers": [],
+                            "FacilityIdentifiers": []
+                          },
+                          "PhoneNumber": {},
+                          "Role": "Attending",
+                          "Specialty": {
+                            "Description": "General Practice",
+                            "ID": "1223G0001X"
+                          }
+                        }
+                      ],
+                      "ReferenceNumbers": [
+                        {
+                          "ID": "AUTH000000",
+                          "IDType": "Prior Authorization"
+                        }
+                      ],
+                      "Services": [
+                        {
+                          "Amount": "100.00",
+                          "Code": "73560",
+                          "Description": "X-Ray knee 1 or 2 views",
+                          "Diagnoses": [],
+                          "Drug": {
+                            "Quantity": {}
+                          },
+                          "IsEmergency": false,
+                          "Modifiers": [],
+                          "Quantity": {
+                            "Units": "Unit",
+                            "Value": "1"
+                          },
+                          "ReferenceNumbers": [
+                            {
+                              "ID": "1",
+                              "IDType": "Control Number"
+                            }
+                          ]
+                        },
+                        {
+                          "Amount": "3.50",
+                          "Code": "J9202",
+                          "Codeset": "HCPCS",
+                          "Description": "Zoladex",
+                          "Diagnoses": [],
+                          "Drug": {
+                            "NDC": "00310095036",
+                            "PrescriptionID": "ABC123456",
+                            "Quantity": {
+                              "Units": "Unit",
+                              "Value": "1"
+                            }
+                          },
+                          "IsEmergency": false,
+                          "Modifiers": [],
+                          "Quantity": {
+                            "Units": "Unit",
+                            "Value": "1"
+                          },
+                          "ReferenceNumbers": [
+                            {
+                              "ID": "2",
+                              "IDType": "Control Number"
+                            }
+                          ]
+                        }
+                      ],
+                      "SubmissionNumber": "66729659983",
+                      "TotalAmount": "200.00",
+                      "Type": "Admit Through Discharge",
+                      "Visit": {
+                        "DateTime": "2016-10-08",
+                        "DischargeDateTime": "2016-10-11",
+                        "Location": {
+                          "Department": "3N",
+                          "DepartmentIdentifiers": [],
+                          "Facility": "RES General Hospital",
+                          "FacilityIdentifiers": [],
+                          "Room": "136",
+                          "Type": "Inpatient"
+                        },
+                        "PreviousLocation": {
+                          "DepartmentIdentifiers": [],
+                          "FacilityIdentifiers": [],
+                          "Type": "Critical Access Hospital"
+                        },
+                        "Type": "Elective"
+                      }
+                    }
+                  ],
+                  "Demographics": {
+                    "Address": {
+                      "City": "Monroe",
+                      "Country": "US",
+                      "County": "Green",
+                      "State": "WI",
+                      "StreetAddress": "4762 Hickory Street",
+                      "ZIP": "53566"
+                    },
+                    "Citizenship": [],
+                    "DOB": "2008-01-06",
+                    "EmailAddresses": [],
+                    "FirstName": "Timothy",
+                    "Language": "en",
+                    "LastName": "Bixby",
+                    "MaritalStatus": "Single",
+                    "MiddleName": "Paul",
+                    "PhoneNumber": {
+                      "Home": "+18088675301"
+                    },
+                    "Race": "White",
+                    "SSN": "101-01-0001",
+                    "Sex": "Male"
+                  },
+                  "Identifiers": [
+                    {
+                      "ID": "0000000001",
+                      "IDType": "MR"
+                    },
+                    {
+                      "ID": "e167267c-16c9-4fe3-96ae-9cff5703e90a",
+                      "IDType": "EHRID"
+                    },
+                    {
+                      "ID": "a1d4ee8aba494ca",
+                      "IDType": "NIST"
+                    }
+                  ],
+                  "Notes": []
+                }
+              ],
+              "ResponsibilityLevel": "Primary"
+            }
+          ]
+        }
+      ],
+      "Submitter": {
+        "Address": {},
+        "Identifiers": [
+          {
+            "ID": "8675309",
+            "IDType": "TIN"
+          }
+        ],
+        "Name": "Redox Health System",
+        "PhoneNumber": {}
+      },
+      "Type": "Institutional"
+    }
+  ]
+}

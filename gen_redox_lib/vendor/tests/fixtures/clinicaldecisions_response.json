@@ -1,0 +1,66 @@
+{
+  "Advisories": [
+    {
+      "AdditionalInfo": [
+        {
+          "DecisionSupport": {
+            "Code": "9",
+            "Description": "We are very confident in this order."
+          },
+          "Link": "https://examplelink"
+        }
+      ],
+      "AdditionalUnsignedOrders": [
+        {
+          "ID": "157968300",
+          "IDType": "RxNorm",
+          "Questions": [
+            {
+              "Answers": [
+                {}
+              ]
+            }
+          ],
+          "Title": "Acetaminophen"
+        }
+      ],
+      "Errors": [
+        {}
+      ],
+      "Notes": [
+        {}
+      ],
+      "RemovableUnsignedOrders": [
+        {
+          "ID": "157968300",
+          "IDType": "CPT",
+          "Title": "Colonoscopy"
+        }
+      ],
+      "Session": "session490284",
+      "ShowAlert": false
+    }
+  ],
+  "Meta": {
+    "DataModel": "Clinical Decisions",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "Response",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  }
+}

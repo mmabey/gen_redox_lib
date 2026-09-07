@@ -1,0 +1,121 @@
+{
+  "Directory": "Carequality",
+  "Meta": {
+    "DataModel": "Organization",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "New",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  },
+  "Organizations": [
+    {
+      "Active": true,
+      "Address": {
+        "City": "ATown",
+        "Country": "USA",
+        "County": "Madison",
+        "State": "AL",
+        "StreetAddress": "123 Main St.",
+        "ZIP": "86754"
+      },
+      "Aliases": [],
+      "Contacts": [
+        {
+          "EmailAddresses": [
+            "[email\u00a0protected]"
+          ],
+          "Name": "Bixby, Barbara",
+          "PhoneNumber": {
+            "Home": "+18088675303",
+            "Mobile": "+19189368865"
+          }
+        }
+      ],
+      "DestinationID": "5e3dc12b-3a04-438e-880d-a690639e629e",
+      "Endpoints": [
+        {
+          "Address": "https://fake.fake.com/xcpd",
+          "Attributes": {
+            "Actor": {
+              "System": "https://sequoiaproject.org/StructureDefinition/Endpoint/Actor/1.0.0",
+              "Value": "Responding Gateway"
+            },
+            "PurposeOfUse": [
+              {
+                "System": "https://sequoiaproject.org/StructureDefinition/Endpoint/PurposesOfUse/1.0.0",
+                "Value": "Treatment"
+              }
+            ],
+            "Roles": [
+              {
+                "System": "https://sequoiaproject.org/StructureDefinition/Endpoint/Roles/1.0.0",
+                "Value": "All"
+              }
+            ],
+            "Transaction": "XCPD ITI-55",
+            "UseCases": [
+              {
+                "System": "https://sequoiaproject.org/StructureDefinition/Endpoint/UseCases/1.0.0",
+                "Value": "QueryBasedDocumentExchange"
+              }
+            ],
+            "Version": {
+              "System": "https://sequoiaproject.org/StructureDefinition/Endpoint/Version/1.0.0",
+              "Value": "2.0"
+            }
+          },
+          "ConnectionType": {
+            "System": "http://hl7.org/fhir/subscription-channel-type",
+            "Value": "ihe-xcpd"
+          },
+          "Identifiers": [
+            {
+              "System": "http://www.hl7.org/oid/",
+              "Type": "HCID",
+              "Value": "2.8.1.2"
+            }
+          ],
+          "MIMEType": "Text/XML",
+          "Name": "Patient Discovery"
+        }
+      ],
+      "Identifiers": [
+        {
+          "ID": "0000000001",
+          "IDType": "FACID"
+        },
+        {
+          "ID": "1.2.3.4.5",
+          "IDType": "OID"
+        }
+      ],
+      "Name": "Test Org",
+      "PartOf": {
+        "Identifier": {
+          "System": "http://www.hl7.org/oid/",
+          "Type": "HCID",
+          "Value": "1.2.3.4"
+        }
+      },
+      "Type": {
+        "System": "http://hl7.org/fhir/organization-type",
+        "Value": "Implementer"
+      }
+    }
+  ]
+}

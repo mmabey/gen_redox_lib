@@ -3,7 +3,7 @@
 # gen_redox_lib/gen_redox_lib/vendor/ruff.toml, and rewritten on every regen.
 
 line-length = 120
-extend-exclude = ["docs"]
+extend-exclude = ["docs", "tests/get_fixtures.py"]
 
 [lint]
 extend-select = [
@@ -65,4 +65,4 @@ ignore = [
 # generic/ module names are PascalCase because they are public import paths
 # (`from redox.generic.Provider import New`).
 "redox/generic/*.py" = ["N999"]
-"tests/**" = ["S101", "S311", "DTZ", "PLR2004", "INP001"]
+"tests/**" = ["S101", "S311", "DTZ", "PLR2004", "INP001", "PT011", "PT030", "SLF001", "T201"]

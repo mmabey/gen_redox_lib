@@ -31,11 +31,6 @@ def fresh_lib_generation(tmp_path: Path) -> Path:
     return dst
 
 
-@pytest.mark.xfail(
-    reason="Snapshots are from the Foo_ era; regenerate once the Pydantic v2 "
-    "redesign (bare field names, private generic classes) lands.",
-    strict=False,
-)
 def test_compare_generated_with_existing(snapshot, fresh_lib_generation: Path):
     snapshot.snapshot_dir = Path(__file__).parent.resolve() / "snapshots"
     generated_root = fresh_lib_generation

@@ -1,0 +1,82 @@
+{
+  "Documents": [
+    {
+      "Author": {
+        "Address": {
+          "City": "Madison",
+          "Country": "USA",
+          "County": "Dane",
+          "State": "WI",
+          "StreetAddress": "123 Main St.",
+          "ZIP": "53703"
+        },
+        "Credentials": [
+          "MD"
+        ],
+        "EmailAddresses": [],
+        "FirstName": "Pat",
+        "ID": "4356789876",
+        "IDType": "NPI",
+        "LastName": "Granite",
+        "Location": {
+          "DepartmentIdentifiers": [],
+          "FacilityIdentifiers": []
+        },
+        "PhoneNumber": {
+          "Office": "+16085551234"
+        }
+      },
+      "DateTime": "2023-02-27T22:09:04.304Z",
+      "ID": "123",
+      "Locale": "US",
+      "Location": {},
+      "Title": "Discharge Summary",
+      "Type": {
+        "Code": "18842-5",
+        "Codeset": "http://hl7.org/fhir/ValueSet/c80-doc-typecodes",
+        "Name": "Discharge summary"
+      },
+      "Visit": {
+        "ID": "12345678"
+      }
+    }
+  ],
+  "Meta": {
+    "DataModel": "Clinical Summary",
+    "Destinations": [
+      {
+        "ID": "af394f14-b34a-464f-8d24-895f370af4c9",
+        "Name": "Redox EMR"
+      }
+    ],
+    "EventDateTime": "2023-02-27T22:09:03.585Z",
+    "EventType": "DocumentQueryResponse",
+    "Logs": [
+      {
+        "AttemptID": "925d1617-2fe0-468c-a14c-f8c04b572c54",
+        "ID": "d9f5d293-7110-461e-a875-3beb089e79f3"
+      }
+    ],
+    "Source": {
+      "ID": "7ce6f387-c33c-417d-8682-81e83628cbd9",
+      "Name": "Redox Dev Tools"
+    },
+    "Test": true
+  },
+  "Patient": {
+    "Identifiers": [
+      {
+        "ID": "0000000001",
+        "IDType": "MR"
+      },
+      {
+        "ID": "e167267c-16c9-4fe3-96ae-9cff5703e90a",
+        "IDType": "EHRID"
+      },
+      {
+        "ID": "a1d4ee8aba494ca",
+        "IDType": "NIST"
+      }
+    ]
+  }
+}
