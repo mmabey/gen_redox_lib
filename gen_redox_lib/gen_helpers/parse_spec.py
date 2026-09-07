@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+from collections.abc import Iterator
 from dataclasses import dataclass
 from json import load
 from pathlib import Path
-from typing import Iterator, Union
+from typing import Union
 
 from inflection import singularize
 
@@ -32,7 +32,7 @@ def parse_and_build_models(spec_dir: Path) -> Iterator[TemplateInfo]:
     """
 
     for spec_file_path in spec_dir.iterdir():
-        with open(spec_file_path) as spec_file:
+        with spec_file_path.open() as spec_file:
             schema_def = load(spec_file)
 
         dir_stem = spec_dir.stem  # Remove any parent dirs from the Path obj
@@ -83,9 +83,7 @@ def create_template_info(klass_def: KlassDefinition, file_name: str) -> Template
     return t_info
 
 
-def _get_subklasses(
-    properties: dict, klass_def: KlassDefinition
-) -> Iterator[Union["_SubklassInfo", None]]:
+def _get_subklasses(properties: dict, klass_def: KlassDefinition) -> Iterator[Union["_SubklassInfo", None]]:
     """Generate info on all properties in the parent ``KlassDefinition``.
 
     :param properties: The value from the parent JSON object's "properties" key.
@@ -111,9 +109,7 @@ def _get_subklasses(
             klass_def.has_forward_refs = True
 
         # Array JSON type - Its subtypes will need their own KlassDefinition
-        elif (
-            prop_info["type"] == "array" and prop_info["items"].get("type") == "object"
-        ):
+        elif prop_info["type"] == "array" and prop_info["items"].get("type") == "object":
             subklass = KlassDefinition(
                 parent_klass_name=klass_def.full_name,
                 klass_name=singularize(prop_name),

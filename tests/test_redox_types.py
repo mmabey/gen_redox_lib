@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from copy import copy
 
 from gen_redox_lib.gen_helpers.sub_types import DeconstructedType
@@ -11,7 +10,7 @@ from gen_redox_lib.gen_helpers.types import (
 )
 
 
-def test_import_mapping_adding():
+def test_import_mapping_adding() -> None:
     # Creating an import mapping is the same whether you pass values to the constructor
     # or do it afterward.
     imports_a = ImportMapping()
@@ -28,14 +27,10 @@ def test_import_mapping_adding():
     assert len(imports_a["nope"]) == 0  # Default value is an empty set
 
 
-def test_property_merging_sorting():
+def test_property_merging_sorting() -> None:
     # Merging checks
     prop_1 = KlassPropertySignatureInfo(
-        type_info=PropertyTypeInfo(
-            _raw_type=DeconstructedType(
-                property_type=KlassPropertyType.NATIVE, types={"str"}
-            )
-        ),
+        type_info=PropertyTypeInfo(_raw_type=DeconstructedType(property_type=KlassPropertyType.NATIVE, types={"str"})),
         required=True,
         alias="FirstProperty",
         appears_in=set(),
@@ -81,11 +76,9 @@ def test_property_merging_sorting():
     assert sorted_props[2] is prop_c
 
 
-def test_klass_merge_sorting():
+def test_klass_merge_sorting() -> None:
     prop_1a = KlassPropertySignatureInfo(
-        type_info=PropertyTypeInfo(
-            _raw_type=DeconstructedType(KlassPropertyType.NATIVE, {"str"})
-        ),
+        type_info=PropertyTypeInfo(_raw_type=DeconstructedType(KlassPropertyType.NATIVE, {"str"})),
         required=True,
         alias="FirstProperty",
         appears_in=set(),
@@ -143,7 +136,7 @@ def test_klass_merge_sorting():
     assert ab == klass_b
 
 
-def test_deconstructed_merge():
+def test_deconstructed_merge() -> None:
     str1 = DeconstructedType(KlassPropertyType.NATIVE, {"str"})
     bool1 = DeconstructedType(KlassPropertyType.NATIVE, {"bool"})
     list1 = DeconstructedType(KlassPropertyType.LIST, {str1})

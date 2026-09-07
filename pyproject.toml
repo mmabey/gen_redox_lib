@@ -56,7 +56,6 @@ extend-exclude = ["tests/snapshots", "gen_redox_lib/vendor", "gen_redox_lib/cach
 [tool.ruff.lint]
 extend-select = [
     "A",
-    "ANN",
     "ASYNC",
     "B",
     "BLE",
@@ -65,7 +64,6 @@ extend-select = [
     "COM",
     "DTZ",
     "E",
-    "EM",
     "EXE",
     "F",
     "FLY",
@@ -78,7 +76,6 @@ extend-select = [
     "PIE",
     "PLC",
     "PLE",
-    "PLR",
     "PLW",
     "PT",
     "PTH",
@@ -92,10 +89,12 @@ extend-select = [
     "T100",
     "TC",
     "TID",
-    "TRY",
     "UP",
     "W",
 ]
+# ANN/EM/TRY/PLR are dropped: this is internal codegen tooling, not a public API,
+# and the generated *output* (which does ship) is held to the full rule set via
+# gen_redox_lib/vendor/ruff.toml.
 # Rules ruff's own docs list as conflicting with the formatter:
 # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
 ignore = [
@@ -112,6 +111,10 @@ ignore = [
     "Q002",
     "Q003",
     "W191",
+    # This tool shells out to git/gh/ruff with fully hardcoded argv; the
+    # subprocess-hardening rules are noise here.
+    "S603",
+    "S607",
 ]
 
 [tool.ruff.lint.isort]

@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+from collections.abc import Iterable
 from copy import copy
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Iterable, List, Set, Union
+from typing import Union
 
 
 class KlassPropertyType(Enum):
@@ -59,7 +59,7 @@ class DeconstructedType:
     """
 
     property_type: KlassPropertyType
-    types: Set[Union[str, "DeconstructedType"]] = field(default_factory=set)
+    types: set[Union[str, "DeconstructedType"]] = field(default_factory=set)
     _schema_types_prefix: str = ""
 
     @property
@@ -67,24 +67,19 @@ class DeconstructedType:
         return self._schema_types_prefix
 
     @schema_prefix.setter
-    def schema_prefix(self, val: str):
+    def schema_prefix(self, val: str) -> None:
         self._schema_types_prefix = val
         for t in self.types:
             if isinstance(t, DeconstructedType):
                 t.schema_prefix = val
 
-    def _validate_length(self):
+    def _validate_length(self) -> None:
         """Verify that ``NATIVE`` and ``SCHEMA`` types only have one element."""
-        if (
-            self.property_type in (KlassPropertyType.NATIVE, KlassPropertyType.SCHEMA)
-            and len(self.types) != 1
-        ):
-            raise IndexError(
-                f"Unexpected length for property type {self.property_type.name}: "
-                f"{len(self.types)} (should be 1)"
-            )
+        if self.property_type in (KlassPropertyType.NATIVE, KlassPropertyType.SCHEMA) and len(self.types) != 1:
+            msg = f"Unexpected length for property type {self.property_type.name}: {len(self.types)} (should be 1)"
+            raise IndexError(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Properly converts the object to a string.
 
         The two key features of this method are that it (1) recursively calls
@@ -96,23 +91,20 @@ class DeconstructedType:
         """
         self._validate_length()
         if self.property_type is KlassPropertyType.NATIVE:
-            return str(list(self.types)[0])
+            return str(next(iter(self.types)))
 
-        elif self.property_type is KlassPropertyType.LIST:
+        if self.property_type is KlassPropertyType.LIST:
             return f"List[{', '.join(_sort_type_names([str(t) for t in self.types]))}]"
 
-        elif self.property_type is KlassPropertyType.UNION:
+        if self.property_type is KlassPropertyType.UNION:
             return f"Union[{', '.join(_sort_type_names([str(t) for t in self.types]))}]"
 
-        elif self.property_type is KlassPropertyType.SCHEMA:
-            schema_type = list(self.types)[0]
-            return (
-                f"{self.schema_prefix}{schema_type}"
-                if self.schema_prefix
-                else f'"{schema_type}"'
-            )
+        if self.property_type is KlassPropertyType.SCHEMA:
+            schema_type = next(iter(self.types))
+            return f"{self.schema_prefix}{schema_type}" if self.schema_prefix else f'"{schema_type}"'
 
-        raise ValueError(f"Unexpected property type: {self.property_type}")
+        msg = f"Unexpected property type: {self.property_type}"
+        raise ValueError(msg)
 
     def __copy__(self):
         return DeconstructedType(self.property_type, copy(self.types))
@@ -141,7 +133,7 @@ class DeconstructedType:
 
         if other is None:
             return copy(self)
-        elif not isinstance(other, self.__class__):
+        if not isinstance(other, self.__class__):
             return NotImplemented
 
         # Cases where self is a native type
@@ -149,14 +141,14 @@ class DeconstructedType:
             return self.__or_native(other)
 
         # Cases where self is a List
-        elif self.property_type is KlassPropertyType.LIST:
+        if self.property_type is KlassPropertyType.LIST:
             return self.__or_list(other)
 
         # Cases where self is a Union
-        elif self.property_type is KlassPropertyType.UNION:
+        if self.property_type is KlassPropertyType.UNION:
             return self.__or_union(other)
 
-        elif self.property_type is KlassPropertyType.SCHEMA:
+        if self.property_type is KlassPropertyType.SCHEMA:
             return self.__or_schema(other)
 
         return NotImplemented
@@ -166,53 +158,49 @@ class DeconstructedType:
             if self.types == other.types:
                 # The types are the same native type
                 return copy(self)
-            else:
-                # Union[type1, type2]
-                return DeconstructedType(
-                    KlassPropertyType.UNION, self.types | other.types
-                )
+            # Union[type1, type2]
+            return DeconstructedType(KlassPropertyType.UNION, self.types | other.types)
 
-        elif other.property_type is KlassPropertyType.LIST:
+        if other.property_type is KlassPropertyType.LIST:
             if self.types.issubset(other.types):
                 # self is already in the other's List of types
                 return copy(other)
-            else:
-                # Union[type1, List[...]]
-                return DeconstructedType(KlassPropertyType.UNION, self.types | {other})
+            # Union[type1, List[...]]
+            return DeconstructedType(KlassPropertyType.UNION, self.types | {other})
 
-        elif other.property_type is KlassPropertyType.UNION:
+        if other.property_type is KlassPropertyType.UNION:
             # Just try to add self (which is already a native type) to the set of types
             # already in other's types.
             return DeconstructedType(KlassPropertyType.UNION, {self} | other.types)
 
-        elif other.property_type is KlassPropertyType.SCHEMA:
+        if other.property_type is KlassPropertyType.SCHEMA:
             # Union[type1, SchemaType2]
             return DeconstructedType(KlassPropertyType.UNION, {self} | {other})
+        return None
 
     def __or_list(self, other: "DeconstructedType") -> "DeconstructedType":
         if other.property_type is KlassPropertyType.NATIVE:
             # This is an operation defined earlier, just reversed. Reuse it.
             return other | self
 
-        elif other.property_type is KlassPropertyType.LIST:
+        if other.property_type is KlassPropertyType.LIST:
             if self.types == other.types:
                 # The types are the same
                 return copy(self)
-            else:
-                # Union[List1, List2]
-                return DeconstructedType(KlassPropertyType.UNION, {self, other})
+            # Union[List1, List2]
+            return DeconstructedType(KlassPropertyType.UNION, {self, other})
 
-        elif other.property_type is KlassPropertyType.UNION:
+        if other.property_type is KlassPropertyType.UNION:
             if self in other.types:
                 # self is already one of the types in the Union
                 return copy(other)
-            else:
-                # Union[..., type1]
-                return DeconstructedType(KlassPropertyType.UNION, other.types | {self})
+            # Union[..., type1]
+            return DeconstructedType(KlassPropertyType.UNION, other.types | {self})
 
-        elif other.property_type is KlassPropertyType.SCHEMA:
+        if other.property_type is KlassPropertyType.SCHEMA:
             # Union[List1, SchemaType2]
             return DeconstructedType(KlassPropertyType.UNION, {self, other})
+        return None
 
     def __or_union(self, other: "DeconstructedType") -> "DeconstructedType":
         if other.property_type in (
@@ -222,13 +210,14 @@ class DeconstructedType:
             # This is an operation defined earlier, just reversed. Reuse it.
             return other | self
 
-        elif other.property_type is KlassPropertyType.UNION:
+        if other.property_type is KlassPropertyType.UNION:
             # Merging the Unions
             return DeconstructedType(KlassPropertyType.UNION, self.types | other.types)
 
-        elif other.property_type is KlassPropertyType.SCHEMA:
+        if other.property_type is KlassPropertyType.SCHEMA:
             # Union[..., SchemaType2]
             return DeconstructedType(KlassPropertyType.UNION, self.types | {other})
+        return None
 
     def __or_schema(self, other: "DeconstructedType") -> "DeconstructedType":
         if other.property_type in (
@@ -239,16 +228,16 @@ class DeconstructedType:
             # This is an operation defined earlier, just reversed. Reuse it.
             return other | self
 
-        elif other.property_type is KlassPropertyType.SCHEMA:
+        if other.property_type is KlassPropertyType.SCHEMA:
             if self.types.issubset(other.types):
                 # self is already in the other's List of types
                 return copy(other)
-            else:
-                # Union[SchemaType1, SchemaType2]
-                return DeconstructedType(KlassPropertyType.UNION, {self, other})
+            # Union[SchemaType1, SchemaType2]
+            return DeconstructedType(KlassPropertyType.UNION, {self, other})
+        return None
 
 
-def _sort_type_names(types: Iterable[str]) -> List[str]:
+def _sort_type_names(types: Iterable[str]) -> list[str]:
     """Sort type names, but put None at the end."""
     if isinstance(types, str):
         raise TypeError
@@ -256,4 +245,4 @@ def _sort_type_names(types: Iterable[str]) -> List[str]:
         return sorted(types)
     types = list(types)
     types.remove("None")
-    return sorted(types) + ["None"]
+    return [*sorted(types), "None"]
