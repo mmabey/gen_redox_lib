@@ -7,9 +7,9 @@ exclude: |
     ^gen_redox_lib/vendor/
   )
 repos:
-# Local (not astral-sh/ruff-pre-commit): shelling out to `uv run ruff` keeps
-# exactly one ruff version in play (the one uv.lock resolves), instead of the
-# separate pinned copy ruff-pre-commit manages in its own venv.
+# Local (not astral-sh/ruff-pre-commit): shelling out to `uv run` keeps exactly
+# one ruff/ty version in play (the one uv.lock resolves), instead of the separate
+# pinned copies the upstream hook repos manage in their own venvs.
 - repo: local
   hooks:
   - id: ruff-check
@@ -24,11 +24,20 @@ repos:
     language: system
     types_or: [python, pyi]
     require_serial: true
+  - id: ty
+    name: Type-check with ty
+    entry: uv run ty check
+    language: system
+    types_or: [python, pyi]
+    pass_filenames: false
+    require_serial: true
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
   hooks:
   - id: check-merge-conflict
   - id: check-symlinks
+  - id: check-toml
+  - id: check-yaml
   - id: end-of-file-fixer
   - id: mixed-line-ending
   - id: trailing-whitespace
