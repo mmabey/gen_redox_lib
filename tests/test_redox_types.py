@@ -182,7 +182,7 @@ def test_deconstructed_merge():
     assert str(str1 | str_none1) == "Union[str, None]"
 
     # Native | Schema
-    assert str(str1 | blah1) == "Union[Blah, str]"
+    assert str(str1 | blah1) == 'Union["Blah", str]'
 
     #
     # LIST
@@ -198,7 +198,7 @@ def test_deconstructed_merge():
     assert str(list1 | str_none1) == "Union[List[str], str, None]"
 
     # List | Schema
-    assert str(list1 | blah1) == "Union[Blah, List[str]]"
+    assert str(list1 | blah1) == 'Union["Blah", List[str]]'
 
     #
     # UNION
@@ -215,21 +215,21 @@ def test_deconstructed_merge():
     assert str(str_bool1 | str_none1) == "Union[bool, str, None]"
 
     # Union | Schema
-    assert str(str_bool1 | blah1) == "Union[Blah, bool, str]"
+    assert str(str_bool1 | blah1) == 'Union["Blah", bool, str]'
 
     #
     # SCHEMA
     #
 
     # Schema | Native
-    assert str(blah1 | str1) == "Union[Blah, str]"
+    assert str(blah1 | str1) == 'Union["Blah", str]'
 
     # Schema | List
-    assert str(blah1 | list1) == "Union[Blah, List[str]]"
+    assert str(blah1 | list1) == 'Union["Blah", List[str]]'
 
     # Schema | Union
-    assert str(blah1 | str_bool1) == "Union[Blah, bool, str]"
+    assert str(blah1 | str_bool1) == 'Union["Blah", bool, str]'
 
     # Schema | Schema
     assert str(blah1 | blah1) == str(blah1)
-    assert str(blah1 | halb1) == "Union[Blah, Halb]"
+    assert str(blah1 | halb1) == 'Union["Blah", "Halb"]'

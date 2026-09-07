@@ -135,7 +135,8 @@ class KlassPropertySignatureInfo:
 
     @property
     def field_name(self):
-        return f"{self.alias}_"
+        # return f"{self.alias}_"
+        return f"{self.alias}"
 
     @property
     def type(self):
@@ -421,7 +422,10 @@ class TemplateInfo:
     # from a particular module already.
     imports: ImportMapping = field(
         default_factory=lambda: ImportMapping(
-            {"pydantic": {"Field"}, "__future__": {"annotations"}}
+            {
+                "pydantic": {"Field"},
+                # "__future__": {"annotations"},
+            }
         )
     )
     relative_imports: ImportMapping = field(default_factory=ImportMapping)

@@ -33,12 +33,12 @@ class CommonKlassKeeper:
         # Pydantic.
         if meta := self._klass_defs.get("Meta"):
             meta.parent_klass_name = "MetaBase"
-            meta._prop_map = None  # Invalidate property map to force it to be rebuilt
-            meta.properties = [
-                prop
-                for prop in meta.properties
-                if prop.alias not in {"DataModel", "EventType"}
-            ]
+            # meta._prop_map = None  # Invalidate property map to force it to be rebuilt
+            # meta.properties = [
+            #     prop
+            #     for prop in meta.properties
+            #     if prop.alias not in {"DataModel", "EventType"}
+            # ]
 
         yield TemplateInfo(
             dir_name=GENERIC_DIR_NAME,
